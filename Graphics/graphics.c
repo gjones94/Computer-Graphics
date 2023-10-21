@@ -2,12 +2,27 @@
 #include "graphics.h"
 #include "colors.h"
 
-/* ========PRIVATE======= */
+//=========================================================
+// PUBLIC VARIABLE INITIALIZATION
+//=========================================================
+SDL_Window* window = NULL;
+SDL_Renderer* renderer = NULL;
+SDL_Texture* buffer_texture = NULL;
+uint32_t* buffer = NULL;
+int originX = 0;
+int originY = 0;
+bool running = false;
+
+//=========================================================
+// PRIVATE FUNCTION PROTOTYPES
+//=========================================================
 static void set_dimensions();
 static bool init_window();
 static bool init_buffers(void);
-/* ====================== */
 
+//=========================================================
+// PUBLIC FUNCTIONS
+//=========================================================
 bool init_graphics()
 {
 	set_dimensions();
@@ -21,25 +36,12 @@ bool init_graphics()
 	return success;
 }
 
-void start_loop()
-{
-	while (running)
-	{
-		process_input();
-
-		update();
-
-		render();
-	}
-}
-
-
 void render()
 {
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
 
-	draw_rect(originX - 50, originY - 50, 100, 100, PURPLE);
+	draw_grid(10, GREY);
 
 	render_texture();
 	clear_buffer(0xFF000000);
@@ -71,39 +73,15 @@ void free_resources()
 	SDL_DestroyWindow(window);
 	SDL_Quit();
 }
-/* ======= MOVE ELSEWHERE ======= */
-void process_input(void)
-{
-	SDL_Event event;
-	SDL_PollEvent(&event);
 
-	switch (event.type)
-	{
-	case SDL_QUIT:
-		running = false;
-		break;
-	case SDL_KEYDOWN:
-		if (event.key.keysym.sym == SDLK_ESCAPE)
-		{
-			running = false;
-		}
-		break;
-	}
-}
-
-void update(void)
-{
-
-}
-
-void draw_grid(uint32_t grid_color)
+void draw_grid(unsigned int spacing, uint32_t grid_color)
 {
 	for (int y = 0; y < WINDOW_HEIGHT; y++)
 	{
 		for (int x = 0; x < WINDOW_WIDTH; x++)
 		{
 			int pixel = (y * WINDOW_WIDTH) + x;
-			if (x % 25 == 0 || y % 25 == 0)
+			if (x % spacing == 0 || y % spacing == 0)
 			{
 				buffer[pixel] = grid_color;
 			}
@@ -130,8 +108,10 @@ void draw_rect(int x, int y, int width, int height, uint32_t color)
 		}
 	}
 }
-/* ======= MOVE ELSEWHERE ======= */
 
+//=========================================================
+// PRIVATE FUNCTIONS
+//=========================================================
 static void set_dimensions()
 {
 	originX = WINDOW_WIDTH / 2;

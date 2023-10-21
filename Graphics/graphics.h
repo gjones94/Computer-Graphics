@@ -2,54 +2,33 @@
 #include <stdbool.h>
 #include <SDL.h>
 
-/* ======= Properties ======= */
-
-//Configurations
+//=========================================================
+// CONFIGURATIONS
+//=========================================================
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 800
 #define COLOR_BACKGROUND 0xFF000000
 
-//SDL Objects
-SDL_Window* window;
-SDL_Renderer* renderer;
-SDL_Texture* buffer_texture;
-uint32_t* buffer;
+//=========================================================
+// PUBLIC VARIABLES
+//=========================================================
+extern SDL_Window* window;
+extern SDL_Renderer* renderer;
+extern SDL_Texture* buffer_texture;
+extern uint32_t* buffer;
+extern int originX;
+extern int originY;
+extern bool running;
 
-int originX;
-int originY;
-bool running;
-/* ========================== */
-
-
-/* ========= Methods ======== */
-
+//=========================================================
+// FUNCTIONS
+//=========================================================
 bool init_graphics();
-
-/// <summary>
-/// Run graphics
-/// </summary>
-void start_loop();
-
-/// <summary>
-/// Initialize SDL window
-/// </summary>
-/// <returns></returns>
-bool init_window();
-
-/// <summary>
-/// Obtain and process user input
-/// </summary>
-void process_input();
-
-/// <summary>
-/// Update any objects during loop
-/// </summary>
-void update();
 
 /// <summary>
 /// Draw grid on window
 /// </summary>
-void draw_grid(uint32_t grid_color);
+void draw_grid(unsigned int spacing, uint32_t grid_color);
 
 /// <summary>
 /// Draw pixel on window
@@ -84,5 +63,3 @@ void render();
 /// Free allocated resources
 /// </summary>
 void free_resources();
-
-/* ========================== */
