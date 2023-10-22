@@ -31,8 +31,6 @@ extern int previous_frame_time;
 //=========================================================
 bool init_graphics();
 
-
-
 /// <summary>
 /// projects vertices into 2d space and draws them onto the buffer
 /// </summary>
@@ -40,17 +38,15 @@ bool init_graphics();
 /// <param name="num_vertices"></param>
 void draw(vec3d_t* vertices, int num_vertices);
 
-
 /// <summary>
 /// Draw grid on window
 /// </summary>
 void draw_grid(unsigned int spacing, uint32_t grid_color);
 
-
 /// <summary>
 /// Draw Rectangle on window
 /// </summary>
-void draw_rect(float x, float y, int width, int height, uint32_t grid_color);
+void draw_rect(float x, float y, int width, int height, uint32_t color);
 
 /// <summary>
 /// Draw pixel on window
@@ -64,12 +60,6 @@ void draw_pixel(int x, int y, uint32_t color);
 /// Returns 3d vector projected into 2d space
 /// </summary>
 vec3d_t get_projection(vec3d_t vector);
-
-/// <summary>
-/// Clear the buffer
-/// </summary>
-/// <param name="color"></param>
-void clear_buffer(uint32_t color);
 
 /// <summary>
 /// Display rendered buffer

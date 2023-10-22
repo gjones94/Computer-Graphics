@@ -35,6 +35,7 @@ static bool init_buffers(void);
 static void init_camera();
 static void throttle_fps(); //delay drawing to match desired FPS
 static void render_texture(); // Update texture with buffer and copy texture to renderer
+static void clear_buffer(uint32_t color);
 static void free_resources();
 
 //=========================================================
@@ -63,18 +64,6 @@ void render()
 	clear_buffer(0xFF000000);
 
 	SDL_RenderPresent(renderer);
-}
-
-
-void clear_buffer(uint32_t color)
-{
-	for (int i = 0; i < WINDOW_HEIGHT; i++)
-	{
-		for (int j = 0; j < WINDOW_WIDTH; j++)
-		{
-			buffer[(i * WINDOW_WIDTH) + j] = color;
-		}
-	}
 }
 
 void draw_grid(unsigned int spacing, uint32_t grid_color)
@@ -236,6 +225,17 @@ static void render_texture()
 {
 	SDL_UpdateTexture(buffer_texture, NULL, buffer, ((int)sizeof(uint32_t) * WINDOW_WIDTH));
 	SDL_RenderCopy(renderer, buffer_texture, NULL, NULL);
+}
+
+static void clear_buffer(uint32_t color)
+{
+	for (int i = 0; i < WINDOW_HEIGHT; i++)
+	{
+		for (int j = 0; j < WINDOW_WIDTH; j++)
+		{
+			buffer[(i * WINDOW_WIDTH) + j] = color;
+		}
+	}
 }
 
 static void free_resources()
