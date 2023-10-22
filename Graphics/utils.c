@@ -4,11 +4,6 @@
 #include <time.h>
 #include "utils.h"
 
-float scale(float value, int scale)
-{
-	return (value * scale);
-}
-
 void write_to_log(const char* file, const char *buffer)
 {
     char time[80];

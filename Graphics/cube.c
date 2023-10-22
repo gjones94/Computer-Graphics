@@ -15,7 +15,7 @@ cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size
 	cube3d_t* cube = (cube3d_t*) malloc(sizeof(cube3d_t));
 	if (cube != NULL)
 	{
-		float points_per_dimension = (size / POINT_DISTANCE) + 1; //(include start index)
+		float points_per_dimension = (size / (float) POINT_DISTANCE) + 1; //(include start index)
 		int num_points = (int) pow(points_per_dimension, NUM_DIMENSIONS);
 
 		vertices = (vec3d_t*) malloc((size_t)(sizeof(vec3d_t) * num_points));

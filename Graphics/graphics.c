@@ -56,6 +56,12 @@ bool init_graphics()
 	return success;
 }
 
+void load_vertices(vec3d_t* vertices, int num_vertices)
+{
+	vertices_to_draw = vertices;
+	num_vertices_to_draw = num_vertices;
+}
+
 void render()
 {
 	throttle_fps();
@@ -67,7 +73,7 @@ void render()
 		triangle_t triangle_to_render = triangle_meshes[i];
 		for (int j = 0; j < 3; j++)
 		{
-			draw_rect(triangle_to_render.points[j].x, triangle_to_render.points[j].y, 4, 4, BLUE);
+			draw_rect(triangle_to_render.points[j].x, triangle_to_render.points[j].y, 8, 8, BLUE);
 		}
 	}
 
@@ -101,6 +107,11 @@ void draw_pixel(int x, int y, uint32_t color)
 	}
 }
 
+void draw_line(float x1, float y1, float x2, float y2)
+{
+
+}
+
 void draw_rect(float x, float y, int width, int height, uint32_t color)
 {
 	int int_x = (int) x;
@@ -115,21 +126,14 @@ void draw_rect(float x, float y, int width, int height, uint32_t color)
 	}
 }
 
-void load_vertices(vec3d_t* vertices, int num_vertices)
+int get_origin_x()
 {
-	vertices_to_draw = vertices;
-	num_vertices_to_draw = num_vertices;
+	return originX;
 }
 
-vec2d_t project_2d(vec3d_t vector)
+int get_origin_y()
 {
-	vec2d_t projected_point =
-	{
-		.x = (scale(vector.x, FOV_SCALE) / vector.z) + originX,
-		.y = (scale(vector.y, FOV_SCALE) / vector.z) + originY,
-	};
-
-	return projected_point;
+	return originY;
 }
 
 //=========================================================

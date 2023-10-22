@@ -44,3 +44,14 @@ vec3d_t rotate(vec3d_t vector, float angle, Axis axis)
 
 	return vectorRotated;
 }
+
+vec2d_t project_2d(vec3d_t vector, int FOV)
+{
+	vec2d_t projected_point =
+	{
+		.x = (vector.x * FOV) / vector.z,
+		.y = (vector.y * FOV) / vector.z,
+	};
+
+	return projected_point;
+}

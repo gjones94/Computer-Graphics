@@ -32,3 +32,4 @@ typedef struct
 void print_vertices(vec3d_t* points, int num_points);
 void print_vertex(vec3d_t point);
 vec3d_t rotate(vec3d_t vector, float angle, Axis axis);
+vec2d_t project_2d(vec3d_t vector, int FOV);

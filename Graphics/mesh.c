@@ -46,7 +46,7 @@ face_t mesh_faces[N_MESH_FACES] = {
 
 static void update_movement()
 {
-	current_rotation += ROTATION_INCREMENT;
+	current_rotation += (float) ROTATION_INCREMENT;
 	if (current_rotation >= 360)
 	{
 		current_rotation = 0.0f;
@@ -57,38 +57,44 @@ triangle_t* get_triangle_meshes()
 {
 	update_movement();
 
-	triangle_t triangles_to_render[N_MESH_FACES];
-
-	for (int i = 0; i < N_MESH_FACES; i++)
+	triangle_t* triangles_to_render = (triangle_t*)malloc(sizeof(triangle_t) * N_MESH_FACES);
+	if (triangles_to_render)
 	{
-		vec3d_t face_vertices[3];
-
-		// Get each vertex for face
-		face_vertices[0] = mesh_vertices[mesh_faces[i].a];
-		face_vertices[1] = mesh_vertices[mesh_faces[i].b];
-		face_vertices[2] = mesh_vertices[mesh_faces[i].c];
-
-		triangle_t projected_triangle;
-		vec3d_t transformed_vertex;
-		for (int j = 0; j < 3; j++)
+		for (int i = 0; i < N_MESH_FACES; i++)
 		{
-			// Rotate each vertex in face
-			transformed_vertex = rotate(face_vertices[j], current_rotation, X_AXIS);
-			transformed_vertex = rotate(transformed_vertex, current_rotation, Y_AXIS);
-			transformed_vertex = rotate(transformed_vertex, current_rotation, Z_AXIS);
+			vec3d_t face_vertices[3];
 
-			// Move point away from camera
-			transformed_vertex.z -= camera_position.z;
+			// Get each vertex for face
+			face_vertices[0] = mesh_vertices[mesh_faces[i].a];
+			face_vertices[1] = mesh_vertices[mesh_faces[i].b];
+			face_vertices[2] = mesh_vertices[mesh_faces[i].c];
 
-			// Project point into 2d space
-			vec2d_t projected_vertex = project_2d(transformed_vertex);
+			triangle_t projected_triangle;
+			vec3d_t transformed_vertex;
+			for (int j = 0; j < 3; j++)
+			{
+				// Rotate each vertex in face
+				transformed_vertex = rotate(face_vertices[j], current_rotation, X_AXIS);
+				transformed_vertex = rotate(transformed_vertex, current_rotation, Y_AXIS);
+				transformed_vertex = rotate(transformed_vertex, current_rotation, Z_AXIS);
 
-			// Save triangle mesh with projected points
-			projected_triangle.points[j] = projected_vertex;
+				// Move point away from camera
+				transformed_vertex.z -= camera_position.z;
+
+				// Project point into 2d space
+				vec2d_t projected_vertex = project_2d(transformed_vertex, FOV);
+
+				// Translate vertext relative to origin
+				projected_vertex.x += get_origin_x();
+				projected_vertex.y += get_origin_y();
+
+				// Save triangle mesh with projected points
+				projected_triangle.points[j] = projected_vertex;
+			}
+
+			// Add triangle for rendering
+			triangles_to_render[i] = projected_triangle;
 		}
-
-		// Add triangle for rendering
-		triangles_to_render[i] = projected_triangle;
 	}
 
 	return triangles_to_render;
