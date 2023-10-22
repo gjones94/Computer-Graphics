@@ -20,9 +20,11 @@ uint32_t* buffer = NULL;
 cube3d_t* cube = NULL;
 vec3d_t camera_position; 
 float angle = 1.0f;
+float angle_increment = .01f;
 int originX = 0;
 int originY = 0;
 bool running = false;
+int previous_frame_time = 0;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -30,8 +32,10 @@ bool running = false;
 static void set_dimensions();
 static bool init_window();
 static bool init_buffers(void);
-static void init_objects();
-static void init_3d();
+static void init_camera();
+static void throttle_fps(); //delay drawing to match desired FPS
+static void render_texture(); // Update texture with buffer and copy texture to renderer
+static void free_resources();
 
 //=========================================================
 // PUBLIC FUNCTIONS
@@ -46,8 +50,7 @@ bool init_graphics()
 		success = init_buffers();
 	}
 
-	init_objects();
-	init_3d();
+	init_camera();
 
 	return success;
 }
@@ -62,11 +65,6 @@ void render()
 	SDL_RenderPresent(renderer);
 }
 
-void render_texture()
-{
-	SDL_UpdateTexture(buffer_texture, NULL, buffer, ((int)sizeof(uint32_t) * WINDOW_WIDTH));
-	SDL_RenderCopy(renderer, buffer_texture, NULL, NULL);
-}
 
 void clear_buffer(uint32_t color)
 {
@@ -77,14 +75,6 @@ void clear_buffer(uint32_t color)
 			buffer[(i * WINDOW_WIDTH) + j] = color;
 		}
 	}
-}
-
-void free_resources()
-{
-	free(buffer);
-	SDL_DestroyRenderer(renderer);
-	SDL_DestroyWindow(window);
-	SDL_Quit();
 }
 
 void draw_grid(unsigned int spacing, uint32_t grid_color)
@@ -111,14 +101,32 @@ void draw_pixel(int x, int y, uint32_t color)
 	}
 }
 
-void draw_rect(int x, int y, int width, int height, uint32_t color)
+void draw_rect(float x, float y, int width, int height, uint32_t color)
 {
-	for (int i = y; i < y + height; i++)
+	int int_x = (int) x;
+	int int_y = (int) y;
+
+	for (int i = int_y; i < int_y + height; i++)
 	{
-		for (int j = x; j < x + width; j++)
+		for (int j = int_x; j < int_x + width; j++)
 		{
 			draw_pixel(j, i, color);
 		}
+	}
+}
+
+void draw(vec3d_t* vertices, int num_vertices)
+{
+	throttle_fps();
+	
+	for (int i = 0; i < num_vertices; i++)
+	{
+		vec3d_t vec3 = vertices[i];
+
+		vec3.z -= camera_position.z; 
+		vec3 = get_projection(vec3);
+
+		draw_rect(vec3.x, vec3.y, 2, 2, BLUE);
 	}
 }
 
@@ -132,60 +140,6 @@ vec3d_t get_projection(vec3d_t vector)
 	};
 
 	return projected;
-}
-
-vec3d_t rotate(vec3d_t vector, float angle, Axis axis)
-{
-	float x = vector.x;
-	float y = vector.y;
-	float z = vector.z;
-
-	vec3d_t vectorRotated = { .x = x, .y = y, .z = z };
-
-	switch (axis)
-	{
-		case X_AXIS:
-			vectorRotated.y = (y * cos(angle)) - (z * sin(angle));
-			vectorRotated.z = (z * cos(angle)) + (y * sin(angle));
-			break;
-		case Y_AXIS:
-			vectorRotated.x = (x * cos(angle)) - (z * sin(angle));
-			vectorRotated.z = (z * cos(angle)) + (x * sin(angle));
-			break;
-		case Z_AXIS:
-			vectorRotated.x = (x * cos(angle)) - (y * sin(angle));
-			vectorRotated.y = (y * cos(angle)) + (x * sin(angle));
-			break;
-	}
-
-	return vectorRotated;
-}
-
-void update(void)
-{
-	SDL_Delay(15);
-	angle += .01;
-
-	if (angle == 360)
-	{
-		angle = 0;
-	}
-
-	for (int i = 0; i < cube->num_vertices; i++)
-	{
-		vec3d_t vec3 = cube->vertices[i];
-
-		vec3 = rotate(vec3, angle, X_AXIS);
-		vec3 = rotate(vec3, angle, Y_AXIS);
-		vec3 = rotate(vec3, angle, Z_AXIS);
-
-		//Translate From Camera  => !!AFTER ROTATION
-		vec3.z -= camera_position.z; 
-
-		vec3 = get_projection(vec3);
-
-		draw_rect(vec3.x, vec3.y, 4, 4, BLUE);
-	}
 }
 
 //=========================================================
@@ -261,14 +215,33 @@ static bool init_buffers(void)
 	return true;
 }
 
-static void init_objects()
-{
-	cube = create_cube(0, 0, 0, 2, .25);
-}
-
-static void init_3d()
+static void init_camera()
 {
 	camera_position.x = 0;
 	camera_position.y = 0;
 	camera_position.z = CAMERA_Z_POS;
+}
+
+static void throttle_fps()
+{
+	int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
+	if (time_to_wait > 0 && time_to_wait <= FRAME_TARGET_TIME)
+	{
+		SDL_Delay(time_to_wait);
+	}
+	previous_frame_time = SDL_GetTicks();
+}
+
+static void render_texture()
+{
+	SDL_UpdateTexture(buffer_texture, NULL, buffer, ((int)sizeof(uint32_t) * WINDOW_WIDTH));
+	SDL_RenderCopy(renderer, buffer_texture, NULL, NULL);
+}
+
+static void free_resources()
+{
+	free(buffer);
+	SDL_DestroyRenderer(renderer);
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 }

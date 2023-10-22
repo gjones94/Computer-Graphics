@@ -1,7 +1,7 @@
 #pragma once
 #include <stdbool.h>
-#include "vector.h"
 #include <SDL.h>
+#include "vector.h"
 
 //=========================================================
 // CONFIGURATIONS
@@ -10,6 +10,9 @@
 #define WINDOW_HEIGHT 1080
 #define COLOR_BACKGROUND 0xFF000000
 #define CAMERA_Z_POS -3
+#define FOV_SCALE 400
+#define FPS 60
+#define FRAME_TARGET_TIME (1000 / FPS)
 
 //=========================================================
 // PUBLIC VARIABLES
@@ -21,16 +24,33 @@ extern uint32_t* buffer;
 extern int originX;
 extern int originY;
 extern bool running;
+extern int previous_frame_time;
 
 //=========================================================
 // FUNCTION PROTOTYPES
 //=========================================================
 bool init_graphics();
 
+
+
+/// <summary>
+/// projects vertices into 2d space and draws them onto the buffer
+/// </summary>
+/// <param name="vertices"></param>
+/// <param name="num_vertices"></param>
+void draw(vec3d_t* vertices, int num_vertices);
+
+
 /// <summary>
 /// Draw grid on window
 /// </summary>
 void draw_grid(unsigned int spacing, uint32_t grid_color);
+
+
+/// <summary>
+/// Draw Rectangle on window
+/// </summary>
+void draw_rect(float x, float y, int width, int height, uint32_t grid_color);
 
 /// <summary>
 /// Draw pixel on window
@@ -41,13 +61,9 @@ void draw_grid(unsigned int spacing, uint32_t grid_color);
 void draw_pixel(int x, int y, uint32_t color);
 
 /// <summary>
-/// Draw Rectangle on window
+/// Returns 3d vector projected into 2d space
 /// </summary>
-void draw_rect(int x, int y, int width, int height, uint32_t grid_color);
-
 vec3d_t get_projection(vec3d_t vector);
-
-vec3d_t rotate(vec3d_t vector, float angle, Axis axis);
 
 /// <summary>
 /// Clear the buffer
@@ -56,16 +72,6 @@ vec3d_t rotate(vec3d_t vector, float angle, Axis axis);
 void clear_buffer(uint32_t color);
 
 /// <summary>
-/// Update texture with buffer and copy texture to renderer
-/// </summary>
-void render_texture();
-
-/// <summary>
 /// Display rendered buffer
 /// </summary>
 void render();
-
-/// <summary>
-/// Free allocated resources
-/// </summary>
-void free_resources();

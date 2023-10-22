@@ -1,3 +1,5 @@
+#pragma once
+#include "vector.h"
 
 typedef struct
 {
@@ -8,5 +10,5 @@ typedef struct
 
 vec3d_t* vertices;
 cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size, float point_spacing);
-void print_vertices(vec3d_t* points, int num_points);
-void print_vertex(vec3d_t point);
+void rotate_cube(cube3d_t* cube, float angle, Axis axis);
+

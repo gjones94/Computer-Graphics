@@ -29,4 +29,6 @@ typedef struct
 //=========================================================
 // PROTOTYPES
 //=========================================================
-
+void print_vertices(vec3d_t* points, int num_points);
+void print_vertex(vec3d_t point);
+vec3d_t rotate(vec3d_t vector, float angle, Axis axis);

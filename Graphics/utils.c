@@ -1,7 +1,8 @@
 #include <stdio.h>
-#include "utils.h"
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "utils.h"
 
 float scale(float value, int scale)
 {
@@ -27,16 +28,18 @@ char* get_current_time()
 {
     time_t current_time;
     struct tm timeinfo;
+    const int buffer_size = 100;
 
-    char time_string[80]; // Adjust the buffer size as needed
+    char* time_string = (char*)malloc(sizeof(char) * buffer_size);
 
     // Get the current time
     time(&current_time);
 
     // Convert the current time to a struct tm using localtime_s
-    if (localtime_s(&timeinfo, &current_time) != 0) {
-        printf("Failed to get the current time.\n");
-        return 1;
+    if (localtime_s(&timeinfo, &current_time) != 0) 
+    {
+        strcpy_s(time_string, buffer_size, "Failed to get the current time\n");
+        return time_string;
     }
 
     // Format the time as a string

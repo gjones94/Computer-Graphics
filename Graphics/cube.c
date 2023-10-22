@@ -1,8 +1,9 @@
-#include "vector.h"
+#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <math.h>
 #include "cube.h"
+#include "graphics.h"
+#include "vector.h"
 
 #define NUM_DIMENSIONS 3.0f
 vec3d_t* vertices;
@@ -13,9 +14,9 @@ cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size
 	if (cube != NULL)
 	{
 		float points_per_dimension = (size / point_spacing) + 1; //(include start index)
-		float num_points = pow(points_per_dimension, NUM_DIMENSIONS);
+		int num_points = (int) pow(points_per_dimension, NUM_DIMENSIONS);
 
-		vertices = (vec3d_t*)malloc((size_t)(sizeof(vec3d_t) * num_points));
+		vertices = (vec3d_t*) malloc((size_t)(sizeof(vec3d_t) * num_points));
 		if (vertices != NULL)
 		{
 			int current_vertex = 0;
@@ -46,17 +47,11 @@ cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size
 	return cube;
 }
 
-void print_vertices(vec3d_t* points, int num_points)
+void rotate_cube(cube3d_t* cube, float angle, Axis axis)
 {
-	for (int i = 0; i < num_points; i++)
+	for (int i = 0; i < cube->num_vertices; i++)
 	{
-		print_vertex(points[i]);
+		cube->vertices[i] = rotate(cube->vertices[i], angle, axis);
 	}
 }
 
-void print_vertex(vec3d_t point)
-{
-	printf("\n");
-	printf("X: %f\tY: %f\tZ: %f\n", point.x, point.y, point.z);
-	printf("\n");
-}
