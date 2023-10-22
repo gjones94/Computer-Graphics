@@ -1,20 +1,28 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
-#include "main.h"
 #include "graphics.h"
 #include "vector.h"
 #include "cube.h"
+#include "utils.h"
+#include "config.h"
 
-//Function Prototypes
+#define BUFFER_SIZE 200
+
+//=========================================================
+// FUNCTION PROTOTYPES
+//=========================================================
 void process_input(void);
 void update(void);
 
+//=========================================================
+// VARIABLES
+//=========================================================
 cube3d_t* cube;
+char* logger;
 
 int main(int argc, char* args[])
 {
-	cube = create_cube(0, 0, 0, 2, .10);
-	print_vertices(cube->vertices, cube->num_vertices);
 
 	running = init_graphics();
 	if (!running)
@@ -53,7 +61,3 @@ void process_input(void)
 	}
 }
 
-void update(void)
-{
-
-}

@@ -136,14 +136,18 @@
     <ClCompile Include="cube.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="graphics.c" />
+    <ClCompile Include="utils.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="colors.h" />
+    <ClInclude Include="config.h" />
     <ClInclude Include="cube.h" />
-    <ClInclude Include="main.h" />
     <ClInclude Include="graphics.h" />
+    <ClInclude Include="utils.h" />
     <ClInclude Include="vector.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="log.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

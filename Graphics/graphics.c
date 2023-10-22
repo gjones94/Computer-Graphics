@@ -1,14 +1,25 @@
 #include <stdio.h>
 #include "graphics.h"
-#include "colors.h"
+#include "config.h"
+#include "vector.h"
+#include "cube.h"
+#include "utils.h"
+#include "vector.h"
 
 //=========================================================
-// PUBLIC VARIABLE INITIALIZATION
+// SDL INITIALIZATION
 //=========================================================
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
+
+//=========================================================
+// GRAPHICS INITIALIZATION
+//=========================================================
+cube3d_t* cube = NULL;
+vec3d_t camera_position; 
+float angle = 1.0f;
 int originX = 0;
 int originY = 0;
 bool running = false;
@@ -19,6 +30,8 @@ bool running = false;
 static void set_dimensions();
 static bool init_window();
 static bool init_buffers(void);
+static void init_objects();
+static void init_3d();
 
 //=========================================================
 // PUBLIC FUNCTIONS
@@ -33,15 +46,15 @@ bool init_graphics()
 		success = init_buffers();
 	}
 
+	init_objects();
+	init_3d();
+
 	return success;
 }
 
 void render()
 {
-	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-	SDL_RenderClear(renderer);
-
-	draw_grid(10, GREY);
+	//draw_grid(10, GREY);
 
 	render_texture();
 	clear_buffer(0xFF000000);
@@ -91,7 +104,7 @@ void draw_grid(unsigned int spacing, uint32_t grid_color)
 
 void draw_pixel(int x, int y, uint32_t color)
 {
-	if (x < WINDOW_WIDTH && y < WINDOW_HEIGHT)
+	if (x > 0 && x < WINDOW_WIDTH && y > 0 && y < WINDOW_HEIGHT)
 	{
 		int pixel_index = (WINDOW_WIDTH * y) + x;
 		buffer[pixel_index] = color;
@@ -104,8 +117,74 @@ void draw_rect(int x, int y, int width, int height, uint32_t color)
 	{
 		for (int j = x; j < x + width; j++)
 		{
-			draw_pixel(i, j, color);
+			draw_pixel(j, i, color);
 		}
+	}
+}
+
+vec3d_t get_projection(vec3d_t vector)
+{
+	vec3d_t projected =
+	{
+		.x = (scale(vector.x, FOV_SCALE) / vector.z) + originX,
+		.y = (scale(vector.y, FOV_SCALE) / vector.z) + originY,
+		.z = vector.z
+	};
+
+	return projected;
+}
+
+vec3d_t rotate(vec3d_t vector, float angle, Axis axis)
+{
+	float x = vector.x;
+	float y = vector.y;
+	float z = vector.z;
+
+	vec3d_t vectorRotated = { .x = x, .y = y, .z = z };
+
+	switch (axis)
+	{
+		case X_AXIS:
+			vectorRotated.y = (y * cos(angle)) - (z * sin(angle));
+			vectorRotated.z = (z * cos(angle)) + (y * sin(angle));
+			break;
+		case Y_AXIS:
+			vectorRotated.x = (x * cos(angle)) - (z * sin(angle));
+			vectorRotated.z = (z * cos(angle)) + (x * sin(angle));
+			break;
+		case Z_AXIS:
+			vectorRotated.x = (x * cos(angle)) - (y * sin(angle));
+			vectorRotated.y = (y * cos(angle)) + (x * sin(angle));
+			break;
+	}
+
+	return vectorRotated;
+}
+
+void update(void)
+{
+	SDL_Delay(15);
+	angle += .01;
+
+	if (angle == 360)
+	{
+		angle = 0;
+	}
+
+	for (int i = 0; i < cube->num_vertices; i++)
+	{
+		vec3d_t vec3 = cube->vertices[i];
+
+		vec3 = rotate(vec3, angle, X_AXIS);
+		vec3 = rotate(vec3, angle, Y_AXIS);
+		vec3 = rotate(vec3, angle, Z_AXIS);
+
+		//Translate From Camera  => !!AFTER ROTATION
+		vec3.z -= camera_position.z; 
+
+		vec3 = get_projection(vec3);
+
+		draw_rect(vec3.x, vec3.y, 4, 4, BLUE);
 	}
 }
 
@@ -180,4 +259,16 @@ static bool init_buffers(void)
 	}
 
 	return true;
+}
+
+static void init_objects()
+{
+	cube = create_cube(0, 0, 0, 2, .25);
+}
+
+static void init_3d()
+{
+	camera_position.x = 0;
+	camera_position.y = 0;
+	camera_position.z = CAMERA_Z_POS;
 }

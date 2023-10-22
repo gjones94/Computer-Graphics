@@ -1,13 +1,15 @@
 #pragma once
 #include <stdbool.h>
+#include "vector.h"
 #include <SDL.h>
 
 //=========================================================
 // CONFIGURATIONS
 //=========================================================
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 1920
+#define WINDOW_HEIGHT 1080
 #define COLOR_BACKGROUND 0xFF000000
+#define CAMERA_Z_POS -3
 
 //=========================================================
 // PUBLIC VARIABLES
@@ -21,7 +23,7 @@ extern int originY;
 extern bool running;
 
 //=========================================================
-// FUNCTIONS
+// FUNCTION PROTOTYPES
 //=========================================================
 bool init_graphics();
 
@@ -42,6 +44,10 @@ void draw_pixel(int x, int y, uint32_t color);
 /// Draw Rectangle on window
 /// </summary>
 void draw_rect(int x, int y, int width, int height, uint32_t grid_color);
+
+vec3d_t get_projection(vec3d_t vector);
+
+vec3d_t rotate(vec3d_t vector, float angle, Axis axis);
 
 /// <summary>
 /// Clear the buffer

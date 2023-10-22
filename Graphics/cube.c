@@ -4,16 +4,16 @@
 #include <math.h>
 #include "cube.h"
 
-#define NUM_PLANES 3.0f
+#define NUM_DIMENSIONS 3.0f
 vec3d_t* vertices;
 
-cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size, float point_density)
+cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size, float point_spacing)
 {
 	cube3d_t* cube = (cube3d_t*) malloc(sizeof(cube3d_t));
 	if (cube != NULL)
 	{
-		float points_per_plane = size / point_density;
-		float num_points = pow(points_per_plane, NUM_PLANES);
+		float points_per_dimension = (size / point_spacing) + 1; //(include start index)
+		float num_points = pow(points_per_dimension, NUM_DIMENSIONS);
 
 		vertices = (vec3d_t*)malloc((size_t)(sizeof(vec3d_t) * num_points));
 		if (vertices != NULL)
@@ -27,11 +27,11 @@ cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size
 			float end_y = start_y + size;
 			float end_z = start_z + size;
 
-			for (float x = start_x; x < end_x; x += point_density)
+			for (float x = start_x; x <= end_x; x += point_spacing)
 			{
-				for (float y = start_y; y < end_y; y += point_density)
+				for (float y = start_y; y <= end_y; y += point_spacing)
 				{
-					for (float z = start_z; z < end_z; z += point_density)
+					for (float z = start_z; z <= end_z; z += point_spacing)
 					{
 						vec3d_t vector = { x, y, z };
 						vertices[current_vertex++] = vector;
