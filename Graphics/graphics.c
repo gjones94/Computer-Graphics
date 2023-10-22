@@ -5,6 +5,7 @@
 #include "cube.h"
 #include "utils.h"
 #include "vector.h"
+#include "mesh.h"
 
 //=========================================================
 // SDL INITIALIZATION
@@ -59,14 +60,15 @@ void render()
 {
 	throttle_fps();
 
-	for (int i = 0; i < num_vertices_to_draw; i++)
+	triangle_t* triangle_meshes = get_triangle_meshes();
+
+	for (int i = 0; i < N_MESH_FACES; i++)
 	{
-		vec3d_t vec3 = vertices_to_draw[i];
-		vec3.z -= camera_position.z;
-
-		vec2d_t vec2 = project_2d(vec3);
-
-		draw_rect(vec2.x, vec2.y, 2, 2, BLUE);
+		triangle_t triangle_to_render = triangle_meshes[i];
+		for (int j = 0; j < 3; j++)
+		{
+			draw_rect(triangle_to_render.points[j].x, triangle_to_render.points[j].y, 4, 4, BLUE);
+		}
 	}
 
 	render_texture();

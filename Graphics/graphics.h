@@ -21,6 +21,7 @@ extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* buffer_texture;
 extern uint32_t* buffer;
+extern vec3d_t camera_position; 
 extern int originX;
 extern int originY;
 extern bool running;

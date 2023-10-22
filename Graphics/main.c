@@ -6,6 +6,7 @@
 #include "cube.h"
 #include "utils.h"
 #include "config.h"
+#include "mesh.h"
 
 #define CONTROL_MOVEMENT .02f
 
@@ -21,20 +22,19 @@ cube3d_t* cube;
 
 int main(int argc, char* args[])
 {
-
 	running = init_graphics();
 	if (!running)
 	{
 		return -1;
 	}
 
-	cube = create_cube(0, 0, 0, 2);
+	//cube = create_cube(0, 0, 0, 2);
 
 	while (running)
 	{
 		process_input();
 
-		load_vertices(cube->vertices, cube->num_vertices);
+		//load_vertices(cube->vertices, cube->num_vertices);
 
 		render();
 	}

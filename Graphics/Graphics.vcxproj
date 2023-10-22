@@ -136,6 +136,7 @@
     <ClCompile Include="cube.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="graphics.c" />
+    <ClCompile Include="mesh.c" />
     <ClCompile Include="utils.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
@@ -143,6 +144,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="cube.h" />
     <ClInclude Include="graphics.h" />
+    <ClInclude Include="mesh.h" />
     <ClInclude Include="utils.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
