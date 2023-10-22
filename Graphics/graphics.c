@@ -14,9 +14,6 @@ SDL_Renderer* renderer = NULL;
 SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
 
-//=========================================================
-// GRAPHICS INITIALIZATION
-//=========================================================
 cube3d_t* cube = NULL;
 vec3d_t camera_position; 
 float angle = 1.0f;
@@ -25,6 +22,8 @@ int originX = 0;
 int originY = 0;
 bool running = false;
 int previous_frame_time = 0;
+vec3d_t* vertices_to_draw;
+int num_vertices_to_draw;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -58,7 +57,17 @@ bool init_graphics()
 
 void render()
 {
-	//draw_grid(10, GREY);
+	throttle_fps();
+
+	for (int i = 0; i < num_vertices_to_draw; i++)
+	{
+		vec3d_t vec3 = vertices_to_draw[i];
+		vec3.z -= camera_position.z;
+
+		vec2d_t vec2 = project_2d(vec3);
+
+		draw_rect(vec2.x, vec2.y, 2, 2, BLUE);
+	}
 
 	render_texture();
 	clear_buffer(0xFF000000);
@@ -104,31 +113,21 @@ void draw_rect(float x, float y, int width, int height, uint32_t color)
 	}
 }
 
-void draw(vec3d_t* vertices, int num_vertices)
+void load_vertices(vec3d_t* vertices, int num_vertices)
 {
-	throttle_fps();
-	
-	for (int i = 0; i < num_vertices; i++)
-	{
-		vec3d_t vec3 = vertices[i];
-
-		vec3.z -= camera_position.z; 
-		vec3 = get_projection(vec3);
-
-		draw_rect(vec3.x, vec3.y, 2, 2, BLUE);
-	}
+	vertices_to_draw = vertices;
+	num_vertices_to_draw = num_vertices;
 }
 
-vec3d_t get_projection(vec3d_t vector)
+vec2d_t project_2d(vec3d_t vector)
 {
-	vec3d_t projected =
+	vec2d_t projected_point =
 	{
 		.x = (scale(vector.x, FOV_SCALE) / vector.z) + originX,
 		.y = (scale(vector.y, FOV_SCALE) / vector.z) + originY,
-		.z = vector.z
 	};
 
-	return projected;
+	return projected_point;
 }
 
 //=========================================================

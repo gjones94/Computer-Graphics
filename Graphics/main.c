@@ -28,13 +28,13 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	cube = create_cube(0, 0, 0, 2, .25);
+	cube = create_cube(0, 0, 0, 2);
 
 	while (running)
 	{
 		process_input();
 
-		draw(cube->vertices, cube->num_vertices);
+		load_vertices(cube->vertices, cube->num_vertices);
 
 		render();
 	}

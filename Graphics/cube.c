@@ -6,14 +6,16 @@
 #include "vector.h"
 
 #define NUM_DIMENSIONS 3.0f
+#define POINT_DISTANCE .25 //The smaller the number, the more condensed the points
+
 vec3d_t* vertices;
 
-cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size, float point_spacing)
+cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size)
 {
 	cube3d_t* cube = (cube3d_t*) malloc(sizeof(cube3d_t));
 	if (cube != NULL)
 	{
-		float points_per_dimension = (size / point_spacing) + 1; //(include start index)
+		float points_per_dimension = (size / POINT_DISTANCE) + 1; //(include start index)
 		int num_points = (int) pow(points_per_dimension, NUM_DIMENSIONS);
 
 		vertices = (vec3d_t*) malloc((size_t)(sizeof(vec3d_t) * num_points));
@@ -28,11 +30,11 @@ cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size
 			float end_y = start_y + size;
 			float end_z = start_z + size;
 
-			for (float x = start_x; x <= end_x; x += point_spacing)
+			for (float x = start_x; x <= end_x; x += POINT_DISTANCE)
 			{
-				for (float y = start_y; y <= end_y; y += point_spacing)
+				for (float y = start_y; y <= end_y; y += POINT_DISTANCE)
 				{
-					for (float z = start_z; z <= end_z; z += point_spacing)
+					for (float z = start_z; z <= end_z; z += POINT_DISTANCE)
 					{
 						vec3d_t vector = { x, y, z };
 						vertices[current_vertex++] = vector;

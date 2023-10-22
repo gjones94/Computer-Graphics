@@ -32,11 +32,11 @@ extern int previous_frame_time;
 bool init_graphics();
 
 /// <summary>
-/// projects vertices into 2d space and draws them onto the buffer
+/// loads vertices for drawing onto buffer
 /// </summary>
 /// <param name="vertices"></param>
 /// <param name="num_vertices"></param>
-void draw(vec3d_t* vertices, int num_vertices);
+void load_vertices(vec3d_t* vertices, int num_vertices);
 
 /// <summary>
 /// Draw grid on window
@@ -57,11 +57,11 @@ void draw_rect(float x, float y, int width, int height, uint32_t color);
 void draw_pixel(int x, int y, uint32_t color);
 
 /// <summary>
-/// Returns 3d vector projected into 2d space
+/// Returns 2d vector after projecting perspective
 /// </summary>
-vec3d_t get_projection(vec3d_t vector);
+vec2d_t project_2d(vec3d_t vector);
 
 /// <summary>
-/// Display rendered buffer
+/// Project perspective and render buffer onto display
 /// </summary>
 void render();
