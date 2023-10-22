@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include "mesh.h"
 #include "graphics.h"
+#include "array.h"
 
-float current_rotation = 0.0f;
 
 vec3d_t* init_mesh_vertices(int num_vertices)
 {
@@ -18,7 +18,8 @@ face_t* init_mesh_faces(int num_faces)
 	return mesh_faces;
 }
 
-vec3d_t mesh_vertices[N_VERTICES] = {
+// Constant vertices for a cube
+vec3d_t cube_vertices[N_CUBE_VERTICES] = {
 	{ .x = -1, .y = -1, .z = -1},	//0
 	{ .x = -1, .y =  1, .z = -1},	//1
 	{ .x =  1, .y =  1, .z = -1},	//2
@@ -29,73 +30,24 @@ vec3d_t mesh_vertices[N_VERTICES] = {
 	{ .x = -1, .y = -1, .z =  1},	//7
 };
 
-face_t mesh_faces[N_MESH_FACES] = {
+// constant faces for a cube
+face_t cube_faces[N_CUBE_MESH_FACES] = {
+	//front
 	{.a = 0, .b = 1, .c = 2},	//0
 	{.a = 0, .b = 2, .c = 3},	//1
+	//right
 	{.a = 3, .b = 2, .c = 4},	//2
 	{.a = 3, .b = 4, .c = 5},	//3
+	//back
 	{.a = 5, .b = 4, .c = 6},	//4
 	{.a = 5, .b = 6, .c = 7},	//5
+	//left
 	{.a = 7, .b = 6, .c = 1},	//6
 	{.a = 7, .b = 1, .c = 0},	//7
+	//top
 	{.a = 1, .b = 6, .c = 4},	//8
 	{.a = 1, .b = 4, .c = 2},	//9
+	//bottom
 	{.a = 5, .b = 7, .c = 0},	//10
 	{.a = 5, .b = 0, .c = 3},	//11
 };
-
-static void update_movement()
-{
-	current_rotation += (float) ROTATION_INCREMENT;
-	if (current_rotation >= 360)
-	{
-		current_rotation = 0.0f;
-	}
-}
-
-triangle_t* get_triangle_meshes()
-{
-	update_movement();
-
-	triangle_t* triangles_to_render = (triangle_t*)malloc(sizeof(triangle_t) * N_MESH_FACES);
-	if (triangles_to_render)
-	{
-		for (int i = 0; i < N_MESH_FACES; i++)
-		{
-			vec3d_t face_vertices[3];
-
-			// Get each vertex for face
-			face_vertices[0] = mesh_vertices[mesh_faces[i].a];
-			face_vertices[1] = mesh_vertices[mesh_faces[i].b];
-			face_vertices[2] = mesh_vertices[mesh_faces[i].c];
-
-			triangle_t projected_triangle;
-			vec3d_t transformed_vertex;
-			for (int j = 0; j < 3; j++)
-			{
-				// Rotate each vertex in face
-				transformed_vertex = rotate(face_vertices[j], current_rotation, X_AXIS);
-				transformed_vertex = rotate(transformed_vertex, current_rotation, Y_AXIS);
-				transformed_vertex = rotate(transformed_vertex, current_rotation, Z_AXIS);
-
-				// Move point away from camera
-				transformed_vertex.z -= camera_position.z;
-
-				// Project point into 2d space
-				vec2d_t projected_vertex = project_2d(transformed_vertex, FOV);
-
-				// Translate vertext relative to origin
-				projected_vertex.x += get_origin_x();
-				projected_vertex.y += get_origin_y();
-
-				// Save triangle mesh with projected points
-				projected_triangle.points[j] = projected_vertex;
-			}
-
-			// Add triangle for rendering
-			triangles_to_render[i] = projected_triangle;
-		}
-	}
-
-	return triangles_to_render;
-}

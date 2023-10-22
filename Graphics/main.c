@@ -34,6 +34,7 @@ int main(int argc, char* args[])
 	{
 		process_input();
 
+		update();
 		//load_vertices(cube->vertices, cube->num_vertices);
 
 		render();

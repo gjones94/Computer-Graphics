@@ -17,7 +17,6 @@ void print_vertex(vec3d_t point)
 	printf("\n");
 }
 
-
 vec3d_t rotate(vec3d_t vector, float angle, Axis axis)
 {
 	float x = vector.x;

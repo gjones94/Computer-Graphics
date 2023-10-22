@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <SDL.h>
 #include "vector.h"
+#include "mesh.h"
 
 //=========================================================
 // CONFIGURATIONS
@@ -60,7 +61,17 @@ void draw_pixel(int x, int y, uint32_t color);
 /// <summary>
 /// DDA Algorithm (Digital Differential Analyzer)
 /// </summary>
-void draw_line(float x1, float y1, float x2, float y2);
+void draw_line(int x1, int y1, int x2, int y2, uint32_t color);
+
+/// <summary>
+/// draw a triangle
+/// </summary>
+void draw_triangle(triangle_t triangle, uint32_t color);
+
+/// <summary>
+/// Update objects to render
+/// </summary>
+void update();
 
 /// <summary>
 /// Project perspective and render buffer onto display
