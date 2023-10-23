@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "vector.h"
 
-void print_vertices(vec3d_t* points, int num_points)
+void print_vertices(vec3_t* points, int num_points)
 {
 	for (int i = 0; i < num_points; i++)
 	{
@@ -10,20 +10,20 @@ void print_vertices(vec3d_t* points, int num_points)
 	}
 }
 
-void print_vertex(vec3d_t point)
+void print_vertex(vec3_t point)
 {
 	printf("\n");
 	printf("X: %f\tY: %f\tZ: %f\n", point.x, point.y, point.z);
 	printf("\n");
 }
 
-vec3d_t rotate(vec3d_t vector, float angle, Axis axis)
+vec3_t rotate(vec3_t vector, float angle, Axis axis)
 {
 	float x = vector.x;
 	float y = vector.y;
 	float z = vector.z;
 
-	vec3d_t vectorRotated = { .x = x, .y = y, .z = z };
+	vec3_t vectorRotated = { .x = x, .y = y, .z = z };
 
 	switch (axis)
 	{
@@ -44,9 +44,9 @@ vec3d_t rotate(vec3d_t vector, float angle, Axis axis)
 	return vectorRotated;
 }
 
-vec2d_t project_2d(vec3d_t vector, int FOV)
+vec2_t project_2d(vec3_t vector, int FOV)
 {
-	vec2d_t projected_point =
+	vec2_t projected_point =
 	{
 		.x = (vector.x * FOV) / vector.z,
 		.y = (vector.y * FOV) / vector.z,

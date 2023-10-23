@@ -8,7 +8,7 @@
 #define NUM_DIMENSIONS 3.0f
 #define POINT_DISTANCE .25 //The smaller the number, the more condensed the points
 
-vec3d_t* vertices;
+vec3_t* vertices;
 
 cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size)
 {
@@ -18,7 +18,7 @@ cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size
 		float points_per_dimension = (size / (float) POINT_DISTANCE) + 1; //(include start index)
 		int num_points = (int) pow(points_per_dimension, NUM_DIMENSIONS);
 
-		vertices = (vec3d_t*) malloc((size_t)(sizeof(vec3d_t) * num_points));
+		vertices = (vec3_t*) malloc((size_t)(sizeof(vec3_t) * num_points));
 		if (vertices != NULL)
 		{
 			int current_vertex = 0;
@@ -36,7 +36,7 @@ cube3d_t* create_cube(float origin_x, float origin_y, float origin_z, float size
 				{
 					for (float z = start_z; z <= end_z; z += POINT_DISTANCE)
 					{
-						vec3d_t vector = { x, y, z };
+						vec3_t vector = { x, y, z };
 						vertices[current_vertex++] = vector;
 					}
 				}

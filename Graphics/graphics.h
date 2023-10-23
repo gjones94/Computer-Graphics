@@ -11,7 +11,7 @@
 #define WINDOW_HEIGHT 1080
 #define COLOR_BACKGROUND 0xFF000000
 #define CAMERA_Z_POS -3
-#define FOV 400
+#define FOV 800
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
 
@@ -22,7 +22,7 @@ extern SDL_Window* window;
 extern SDL_Renderer* renderer;
 extern SDL_Texture* buffer_texture;
 extern uint32_t* buffer;
-extern vec3d_t camera_position; 
+extern vec3_t camera_position; 
 extern int originX;
 extern int originY;
 extern bool running;
@@ -38,7 +38,7 @@ bool init_graphics();
 /// </summary>
 /// <param name="vertices"></param>
 /// <param name="num_vertices"></param>
-void load_vertices(vec3d_t* vertices, int num_vertices);
+void load_vertices(vec3_t* vertices, int num_vertices);
 
 /// <summary>
 /// Draw grid on window
@@ -88,3 +88,7 @@ int get_origin_x();
 /// </summary>
 int get_origin_y();
 
+/// <summary>
+/// Frees allocated memory used by graphics
+/// </summary>
+void free_resources();

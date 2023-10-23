@@ -3,23 +3,15 @@
 #include "graphics.h"
 #include "array.h"
 
-
-vec3d_t* init_mesh_vertices(int num_vertices)
+mesh_t mesh =
 {
-	vec3d_t *mesh_vertices = (vec3d_t*) malloc(sizeof(vec3d_t) * num_vertices);
-
-	return mesh_vertices;
-}
-
-face_t* init_mesh_faces(int num_faces)
-{
-	face_t* mesh_faces = (face_t*) malloc(sizeof(face_t) * num_faces);
-
-	return mesh_faces;
-}
+	.vertices = NULL,
+	.faces = NULL,
+	.rotation = { .x = 0, .y = 0, .z = 0 }
+};
 
 // Constant vertices for a cube
-vec3d_t cube_vertices[N_CUBE_VERTICES] = {
+vec3_t cube_vertices[N_CUBE_VERTICES] = {
 	{ .x = -1, .y = -1, .z = -1},	//0
 	{ .x = -1, .y =  1, .z = -1},	//1
 	{ .x =  1, .y =  1, .z = -1},	//2
@@ -31,7 +23,7 @@ vec3d_t cube_vertices[N_CUBE_VERTICES] = {
 };
 
 // constant faces for a cube
-face_t cube_faces[N_CUBE_MESH_FACES] = {
+face_t cube_faces[N_CUBE_FACES] = {
 	//front
 	{.a = 0, .b = 1, .c = 2},	//0
 	{.a = 0, .b = 2, .c = 3},	//1
@@ -51,3 +43,16 @@ face_t cube_faces[N_CUBE_MESH_FACES] = {
 	{.a = 5, .b = 7, .c = 0},	//10
 	{.a = 5, .b = 0, .c = 3},	//11
 };
+
+void load_cube_mesh_data()
+{
+	for (int i = 0; i < N_CUBE_VERTICES; i++)
+	{
+		array_push(mesh.vertices, cube_vertices[i]);
+	}
+
+	for (int i = 0; i < N_CUBE_FACES; i++)
+	{
+		array_push(mesh.faces, cube_faces[i]);
+	}
+}

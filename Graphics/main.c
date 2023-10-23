@@ -28,17 +28,18 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	//cube = create_cube(0, 0, 0, 2);
+	load_cube_mesh_data();
 
 	while (running)
 	{
 		process_input();
 
 		update();
-		//load_vertices(cube->vertices, cube->num_vertices);
 
 		render();
 	}
+
+	free_resources();
 
 	return 0;
 }

@@ -17,7 +17,7 @@ SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
 
 //cube3d_t* cube = NULL;
-vec3d_t camera_position; 
+vec3_t camera_position; 
 float angle = 0.0f;
 float const angle_increment = 0.01f;
 int originX = 0;
@@ -26,7 +26,7 @@ bool running = false;
 int previous_frame_time = 0;
 
 triangle_t* triangles_to_render;
-vec3d_t* vertices_to_draw;
+vec3_t* vertices_to_draw;
 int num_vertices_to_draw;
 
 //=========================================================
@@ -39,7 +39,7 @@ static void init_camera();
 static void throttle_fps(); //delay drawing to match desired FPS
 static void render_texture(); // Update texture with buffer and copy texture to renderer
 static void clear_buffer(uint32_t color);
-static void free_resources();
+static void destroy_window();
 
 //=========================================================
 // PUBLIC FUNCTIONS
@@ -59,7 +59,7 @@ bool init_graphics()
 	return success;
 }
 
-void load_vertices(vec3d_t* vertices, int num_vertices)
+void load_vertices(vec3_t* vertices, int num_vertices)
 {
 	vertices_to_draw = vertices;
 	num_vertices_to_draw = num_vertices;
@@ -67,38 +67,40 @@ void load_vertices(vec3d_t* vertices, int num_vertices)
 
 void update()
 {
-	// Update Animation Rotation
-	angle += (float) angle_increment;
-	if (angle >= 360)
-	{
-		angle = 0.0f;
-	}
+	triangles_to_render = NULL;
 
 	// Update Triangle Mesh with new rotation
-	triangles_to_render = NULL;
-	for (int i = 0; i < N_CUBE_MESH_FACES; i++)
+	mesh.rotation.x = (mesh.rotation.x >= 360) ? 0 : mesh.rotation.x + angle_increment;
+	mesh.rotation.y = (mesh.rotation.y >= 360) ? 0 : mesh.rotation.y + angle_increment;
+	mesh.rotation.z = (mesh.rotation.z >= 360) ? 0 : mesh.rotation.z + angle_increment;
+
+	int num_faces = array_length(mesh.faces);
+	for (int i = 0; i < num_faces; i++)
 	{
-		vec3d_t face_vertices[3];
+		face_t mesh_face = mesh.faces[i];
 
 		// Get each vertex for face
-		face_vertices[0] = cube_vertices[cube_faces[i].a];
-		face_vertices[1] = cube_vertices[cube_faces[i].b];
-		face_vertices[2] = cube_vertices[cube_faces[i].c];
+		vec3_t face_vertices[3];
+
+		// face stores vertex index in vertices array
+		face_vertices[0] = mesh.vertices[mesh_face.a];
+		face_vertices[1] = mesh.vertices[mesh_face.b];
+		face_vertices[2] = mesh.vertices[mesh_face.c];
 
 		triangle_t projected_triangle;
-		vec3d_t transformed_vertex;
+		vec3_t transformed_vertex;
 		for (int j = 0; j < 3; j++)
 		{
 			// Rotate each vertex in face
-			transformed_vertex = rotate(face_vertices[j], angle, X_AXIS);
-			transformed_vertex = rotate(transformed_vertex, angle, Y_AXIS);
-			transformed_vertex = rotate(transformed_vertex, angle, Z_AXIS);
+			transformed_vertex = rotate(face_vertices[j], mesh.rotation.x, X_AXIS);
+			transformed_vertex = rotate(transformed_vertex, mesh.rotation.y, Y_AXIS);
+			transformed_vertex = rotate(transformed_vertex, mesh.rotation.z, Z_AXIS);
 
 			// Move point away from camera
 			transformed_vertex.z -= camera_position.z;
 
 			// Project point into 2d space
-			vec2d_t projected_vertex = project_2d(transformed_vertex, FOV);
+			vec2_t projected_vertex = project_2d(transformed_vertex, FOV);
 
 			// Translate vertext relative to origin
 			projected_vertex.x += get_origin_x();
@@ -122,6 +124,8 @@ void render()
 	{
 		draw_triangle(triangles_to_render[i], BLUE);
 	}
+
+	array_free(triangles_to_render);
 
 	render_texture();
 	clear_buffer(0xFF000000);
@@ -225,6 +229,15 @@ int get_origin_y()
 	return originY;
 }
 
+void free_resources()
+{
+	array_free(mesh.faces);
+	array_free(mesh.vertices);
+	free(buffer);
+
+	destroy_window();
+}
+
 //=========================================================
 // PRIVATE FUNCTIONS
 //=========================================================
@@ -305,6 +318,9 @@ static void init_camera()
 	camera_position.z = CAMERA_Z_POS;
 }
 
+/// <summary>
+/// Waits necessary time to achieve target frame rate
+/// </summary>
 static void throttle_fps()
 {
 	int time_to_wait = FRAME_TARGET_TIME - (SDL_GetTicks() - previous_frame_time);
@@ -332,9 +348,8 @@ static void clear_buffer(uint32_t color)
 	}
 }
 
-static void free_resources()
+static void destroy_window()
 {
-	free(buffer);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	SDL_Quit();
