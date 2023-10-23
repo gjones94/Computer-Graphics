@@ -19,7 +19,7 @@ uint32_t* buffer = NULL;
 //cube3d_t* cube = NULL;
 vec3_t camera_position; 
 float angle = 0.0f;
-float const angle_increment = 0.01f;
+float const angle_increment = 0.005f;
 int originX = 0;
 int originY = 0;
 bool running = false;
@@ -69,11 +69,6 @@ void update()
 {
 	triangles_to_render = NULL;
 
-	// Update Triangle Mesh with new rotation
-	mesh.rotation.x = (mesh.rotation.x >= 360) ? 0 : mesh.rotation.x + angle_increment;
-	mesh.rotation.y = (mesh.rotation.y >= 360) ? 0 : mesh.rotation.y + angle_increment;
-	mesh.rotation.z = (mesh.rotation.z >= 360) ? 0 : mesh.rotation.z + angle_increment;
-
 	int num_faces = array_length(mesh.faces);
 	for (int i = 0; i < num_faces; i++)
 	{
@@ -83,9 +78,10 @@ void update()
 		vec3_t face_vertices[3];
 
 		// face stores vertex index in vertices array
-		face_vertices[0] = mesh.vertices[mesh_face.a];
-		face_vertices[1] = mesh.vertices[mesh_face.b];
-		face_vertices[2] = mesh.vertices[mesh_face.c];
+		// vertex index references start with 1 instead of 0, need to get to zero-based index by subtracting 1
+		face_vertices[0] = mesh.vertices[mesh_face.a - 1]; 
+		face_vertices[1] = mesh.vertices[mesh_face.b - 1];
+		face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
 		triangle_t projected_triangle;
 		vec3_t transformed_vertex;

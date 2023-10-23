@@ -30,3 +30,5 @@ extern triangle_t triangles[N_CUBE_FACES];
 extern mesh_t mesh; //global mesh instance
 
 void load_cube_mesh_data();
+void load_mesh_from_file(const char* filename);
+void rotate_mesh(float angle, Axis axis);

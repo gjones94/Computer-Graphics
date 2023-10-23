@@ -1,0 +1,6 @@
+===================
+Object file imports
+===================
+
+When importing an object file, make sure to right click on the object and select "text" from the 
+object type. The project will not compile correctly if this option is not selected.

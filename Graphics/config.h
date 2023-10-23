@@ -1,6 +1,7 @@
 #pragma once
 
 #define LOG_FILE "log.txt"
+#define BUFFER_SIZE 200
 
 //ABGR
 #define RED 0xFF0000FF

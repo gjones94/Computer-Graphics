@@ -8,7 +8,7 @@
 #include "config.h"
 #include "mesh.h"
 
-#define CONTROL_MOVEMENT .02f
+#define CONTROL_MOVEMENT .01f
 
 //=========================================================
 // FUNCTION PROTOTYPES
@@ -28,7 +28,7 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	load_cube_mesh_data();
+	load_mesh_from_file("f22.obj");
 
 	while (running)
 	{
@@ -62,34 +62,34 @@ void process_input(void)
 			}
 
 			//X AXIS
-			if (event.key.keysym.sym == SDLK_a)
+			if (event.key.keysym.sym == SDLK_d)
 			{
-				rotate_cube(cube, CONTROL_MOVEMENT, X_AXIS);
+				rotate_mesh((float) CONTROL_MOVEMENT, X_AXIS);
 			}
 
-			if (event.key.keysym.sym == SDLK_z)
+			if (event.key.keysym.sym == SDLK_a)
 			{
-				rotate_cube(cube, -CONTROL_MOVEMENT, X_AXIS);
+				rotate_mesh((float) - CONTROL_MOVEMENT, X_AXIS);
 			}
 
 			//Y AXIS
-			if (event.key.keysym.sym == SDLK_s)
+			if (event.key.keysym.sym == SDLK_LEFT)
 			{
-				rotate_cube(cube, CONTROL_MOVEMENT, Y_AXIS);
+				rotate_mesh((float) CONTROL_MOVEMENT, Y_AXIS);
 			}
-			if (event.key.keysym.sym == SDLK_x)
+			if (event.key.keysym.sym == SDLK_RIGHT)
 			{
-				rotate_cube(cube, -CONTROL_MOVEMENT, Y_AXIS);
+				rotate_mesh((float) - CONTROL_MOVEMENT, Y_AXIS);
 			}
 
 			//Z AXIS
-			if (event.key.keysym.sym == SDLK_d)
+			if (event.key.keysym.sym == SDLK_DOWN)
 			{
-				rotate_cube(cube, CONTROL_MOVEMENT, Z_AXIS);
+				rotate_mesh((float) CONTROL_MOVEMENT, Z_AXIS);
 			}
-			if (event.key.keysym.sym == SDLK_c)
+			if (event.key.keysym.sym == SDLK_UP)
 			{
-				rotate_cube(cube, -CONTROL_MOVEMENT, Z_AXIS);
+				rotate_mesh((float) - CONTROL_MOVEMENT, Z_AXIS);
 			}
 
 			break;

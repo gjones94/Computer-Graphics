@@ -151,7 +151,15 @@
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="log.txt" />
+    <Text Include="cube.obj">
+      <FileType>Document</FileType>
+    </Text>
+    <Text Include="NOTE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="f22.obj">
+      <FileType>Document</FileType>
+    </Text>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

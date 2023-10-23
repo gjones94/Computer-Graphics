@@ -61,6 +61,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="log.txt" />
+    <Text Include="NOTE.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="cube.obj">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="f22.obj">
+      <Filter>Resource Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>
