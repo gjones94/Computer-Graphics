@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include "vector.h"
 
 typedef struct
@@ -18,7 +19,7 @@ typedef struct
 	vec3_t* vertices;
 	face_t* faces;
 	vec3_t  rotation; // current rotation of object (x, y, z)
-
+	uint32_t color;
 } mesh_t;
 
 #define N_CUBE_VERTICES 8

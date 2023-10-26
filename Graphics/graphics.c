@@ -16,9 +16,7 @@ SDL_Renderer* renderer = NULL;
 SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
 
-//cube3d_t* cube = NULL;
 vec3_t camera_position; 
-float angle = 0.0f;
 float const angle_increment = 0.005f;
 int originX = 0;
 int originY = 0;
@@ -26,8 +24,6 @@ bool running = false;
 int previous_frame_time = 0;
 
 triangle_t* triangles_to_render;
-vec3_t* vertices_to_draw;
-int num_vertices_to_draw;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -59,12 +55,6 @@ bool init_graphics()
 	return success;
 }
 
-void load_vertices(vec3_t* vertices, int num_vertices)
-{
-	vertices_to_draw = vertices;
-	num_vertices_to_draw = num_vertices;
-}
-
 void update()
 {
 	triangles_to_render = NULL;
@@ -84,19 +74,60 @@ void update()
 		face_vertices[2] = mesh.vertices[mesh_face.c - 1];
 
 		triangle_t projected_triangle;
-		vec3_t transformed_vertex;
+		vec3_t transformed_vertices[3];
+
+		// Change World Position
 		for (int j = 0; j < 3; j++)
 		{
-			// Rotate each vertex in face
+			vec3_t transformed_vertex;
 			transformed_vertex = rotate(face_vertices[j], mesh.rotation.x, X_AXIS);
 			transformed_vertex = rotate(transformed_vertex, mesh.rotation.y, Y_AXIS);
 			transformed_vertex = rotate(transformed_vertex, mesh.rotation.z, Z_AXIS);
 
 			// Move point away from camera
-			transformed_vertex.z -= camera_position.z;
+			transformed_vertex.z += 5; //move point away from origin
+			transformed_vertices[j] = transformed_vertex;
+		}
 
-			// Project point into 2d space
-			vec2_t projected_vertex = project_2d(transformed_vertex, FOV);
+		vec3_t c = transformed_vertices[2]; /*  b   c  */ //b (index) --> c (middle) = CLOCKWISE
+		vec3_t b = transformed_vertices[1]; /*   \ /   */
+		vec3_t a = transformed_vertices[0]; /*    a    */ //Thumb toward you
+
+		/*
+			 Backface Culling
+
+					 N
+					 |
+					 a
+					/|\
+				   / | \
+				  c  |  b
+					 |
+				  camera
+
+			1. Get A->B = B-A
+			2. Get A->C = C-A
+			3. Get A->Camera = Camera - A
+			4. Get Cross Product (AB X AC) = Perpindicular Normal at A
+			5. Get Dot Product of N and A->Camera
+			6. Evaluate if Normal is at all facing camera or not
+		*/
+
+		vec3_t ab = vec3_subtract(b, a); // b - a
+		vec3_t ac = vec3_subtract(c, a); // c - a
+		vec3_t camera_ray = vec3_subtract(camera_position,  a); //camera - a
+		vec3_t perpindicular_normal = vec3_cross(ab, ac);
+		float dot_product = vec3_dot(perpindicular_normal, camera_ray);
+		if (dot_product < 0)
+		{
+			continue;
+		}
+
+		// Transform
+		for(int j = 0; j < 3; j++)
+		{
+			// Project into 2d space
+			vec2_t projected_vertex = project_2d(transformed_vertices[j], FOV);
 
 			// Translate vertext relative to origin
 			projected_vertex.x += get_origin_x();
@@ -118,7 +149,7 @@ void render()
 	int size = array_length(triangles_to_render);
 	for (int i = 0; i < size; i++)
 	{
-		draw_triangle(triangles_to_render[i], BLUE);
+		draw_triangle(triangles_to_render[i], mesh.color);
 	}
 
 	array_free(triangles_to_render);
@@ -163,8 +194,8 @@ void draw_line(int x1, int y1, int x2, int y2, uint32_t color)
 	float x_increment = x_distance / (float) side_length; //1 if x is the side_length OR rise/run if y is the side_length
 	float y_increment = y_distance / (float) side_length; //rise/run if x is the side_length OR 1 if y is the side_length
 
-	float current_x = x1;
-	float current_y = y1;
+	float current_x = (float) x1;
+	float current_y = (float) y1;
 	for (int i = 0; i < side_length; i++)
 	{
 		draw_pixel((int) round(current_x), (int) round(current_y), color);
@@ -190,26 +221,26 @@ void draw_rect(float x, float y, int width, int height, uint32_t color)
 void draw_triangle(triangle_t triangle, uint32_t color)
 {
 	draw_line(
-		(int)triangle.points[0].x,
-		(int)triangle.points[0].y,
-		(int)triangle.points[1].x,
-		(int)triangle.points[1].y,
+		(int) triangle.points[0].x,
+		(int) triangle.points[0].y,
+		(int) triangle.points[1].x,
+		(int) triangle.points[1].y,
 		color
 	);
 
 	draw_line(
-		(int)triangle.points[1].x,
-		(int)triangle.points[1].y,
-		(int)triangle.points[2].x,
-		(int)triangle.points[2].y,
+		(int) triangle.points[1].x,
+		(int) triangle.points[1].y,
+		(int) triangle.points[2].x,
+		(int) triangle.points[2].y,
 		color
 	);
 
 	draw_line(
-		(int)triangle.points[2].x,
-		(int)triangle.points[2].y,
-		(int)triangle.points[0].x,
-		(int)triangle.points[0].y,
+		(int) triangle.points[2].x,
+		(int) triangle.points[2].y,
+		(int) triangle.points[0].x,
+		(int) triangle.points[0].y,
 		color
 	);
 }
@@ -311,7 +342,7 @@ static void init_camera()
 {
 	camera_position.x = 0;
 	camera_position.y = 0;
-	camera_position.z = CAMERA_Z_POS;
+	camera_position.z = 0;
 }
 
 /// <summary>

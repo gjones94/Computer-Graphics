@@ -7,11 +7,10 @@
 //=========================================================
 // CONFIGURATIONS
 //=========================================================
-#define WINDOW_WIDTH 1920
-#define WINDOW_HEIGHT 1080
+#define WINDOW_WIDTH 1000
+#define WINDOW_HEIGHT 1000
 #define COLOR_BACKGROUND 0xFF000000
-#define CAMERA_Z_POS -3
-#define FOV 800
+#define FOV 500
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
 

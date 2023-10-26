@@ -10,7 +10,7 @@ mesh_t mesh =
 {
 	.vertices = NULL,
 	.faces = NULL,
-	.rotation = { .x = 0, .y = 0, .z = 0 }
+	.rotation = { .x = 0, .y = 0, .z = 0 },
 };
 
 // Constant vertices for a cube
@@ -109,6 +109,7 @@ void load_mesh_from_file(const char* filename)
 	}
 	
 	mesh.rotation.z = 180.0f;
+	mesh.color = BLUE_GREEN;
 }
 
 void rotate_mesh(float angle, Axis axis)

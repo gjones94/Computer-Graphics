@@ -17,6 +17,58 @@ void print_vertex(vec3_t point)
 	printf("\n");
 }
 
+float vec2_length(vec2_t v)
+{
+	return sqrt(pow(v.x, 2) + pow(v.y, 2));
+}
+
+vec2_t vec2_add(vec2_t a, vec2_t b)
+{
+	vec2_t result = { a.x + b.x, a.y + b.y };
+	return result;
+}
+
+vec2_t vec2_subtract(vec2_t a, vec2_t b)
+{
+	vec2_t result = { a.x - b.x, a.y - b.y };
+	return result;
+}
+
+vec2_t vec2_multiply(vec2_t a, float scale_factor)
+{
+	vec2_t result = { a.x * scale_factor, a.y * scale_factor };
+	return result;
+}
+
+vec2_t vec2_divide(vec2_t a, float scale_factor)
+{
+	vec2_t result = { a.x / scale_factor, a.y / scale_factor };
+	return result;
+}
+
+float vec2_dot(vec2_t a, vec2_t b)
+{
+	return (a.x * b.x) + (a.y * b.y);
+}
+
+
+/// <summary>
+/// Projects a 3d vector into 2d vector
+/// </summary>
+/// <param name="vector"></param>
+/// <param name="FOV"></param>
+/// <returns></returns>
+vec2_t project_2d(vec3_t vector, int FOV)
+{
+	vec2_t projected_point =
+	{
+		.x = (vector.x * FOV) / vector.z,
+		.y = (vector.y * FOV) / vector.z,
+	};
+
+	return projected_point;
+}
+
 vec3_t rotate(vec3_t vector, float angle, Axis axis)
 {
 	float x = vector.x;
@@ -44,13 +96,47 @@ vec3_t rotate(vec3_t vector, float angle, Axis axis)
 	return vectorRotated;
 }
 
-vec2_t project_2d(vec3_t vector, int FOV)
+float vec3_length(vec3_t v)
 {
-	vec2_t projected_point =
-	{
-		.x = (vector.x * FOV) / vector.z,
-		.y = (vector.y * FOV) / vector.z,
+	return sqrt(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2));
+}
+
+vec3_t vec3_add(vec3_t a, vec3_t b)
+{
+	vec3_t result = { a.x + b.x, a.y + b.y, a.z + b.z };
+	return result;
+}
+
+vec3_t vec3_subtract(vec3_t target, vec3_t source)
+{
+	vec3_t result = { target.x - source.x, target.y - source.y, target.z - source.z };
+	return result;
+}
+
+vec3_t vec3_multiply(vec3_t a, float scale_factor)
+{
+	vec3_t result = { a.x * scale_factor, a.y * scale_factor, a.z * scale_factor };
+	return result;
+}
+
+vec3_t vec3_divide(vec3_t a, float scale_factor)
+{
+	vec3_t result = { a.x / scale_factor, a.y / scale_factor, a.z / scale_factor };
+	return result;
+}
+
+vec3_t vec3_cross(vec3_t a, vec3_t b)
+{
+	vec3_t cross_product = {
+		.x = a.y * b.z - a.z * b.y,
+		.y = a.z * b.x - a.x * b.z,
+		.z = a.x * b.y - a.y * b.x
 	};
 
-	return projected_point;
+	return cross_product;
+}
+
+float vec3_dot(vec3_t a, vec3_t b)
+{
+	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
