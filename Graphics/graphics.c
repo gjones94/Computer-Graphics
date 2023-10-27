@@ -85,13 +85,9 @@ void update()
 			transformed_vertex = rotate(transformed_vertex, mesh.rotation.z, Z_AXIS);
 
 			// Move point away from camera
-			transformed_vertex.z += 5; //move point away from origin
+			transformed_vertex.z += 5; // move point away from origin
 			transformed_vertices[j] = transformed_vertex;
 		}
-
-		vec3_t c = transformed_vertices[2]; /*  b   c  */ //b (index) --> c (middle) = CLOCKWISE
-		vec3_t b = transformed_vertices[1]; /*   \ /   */
-		vec3_t a = transformed_vertices[0]; /*    a    */ //Thumb toward you
 
 		/*
 			 Backface Culling
@@ -112,14 +108,22 @@ void update()
 			5. Get Dot Product of N and A->Camera
 			6. Evaluate if Normal is at all facing camera or not
 		*/
+		vec3_t c = transformed_vertices[2]; /*  b   c  */ // b (index) --> c (middle) = CLOCKWISE
+		vec3_t b = transformed_vertices[1]; /*   \ /   */
+		vec3_t a = transformed_vertices[0]; /*    a    */ // Thumb toward you
 
 		vec3_t ab = vec3_subtract(b, a); // b - a
 		vec3_t ac = vec3_subtract(c, a); // c - a
-		vec3_t camera_ray = vec3_subtract(camera_position,  a); //camera - a
-		vec3_t perpindicular_normal = vec3_cross(ab, ac);
-		float dot_product = vec3_dot(perpindicular_normal, camera_ray);
+		vec3_t camera_ray = vec3_subtract(camera_position,  a); // camera - a
+
+		vec3_t normal = vec3_cross(ab, ac);
+		vec3_normalize(&normal);
+
+		float dot_product = vec3_dot(normal, camera_ray);
+
 		if (dot_product < 0)
 		{
+			// Do not show faces that are not facing the camera
 			continue;
 		}
 
@@ -129,13 +133,31 @@ void update()
 			// Project into 2d space
 			vec2_t projected_vertex = project_2d(transformed_vertices[j], FOV);
 
-			// Translate vertext relative to origin
+			// Translate vertex relative to origin
 			projected_vertex.x += get_origin_x();
 			projected_vertex.y += get_origin_y();
+
 
 			// Save triangle mesh with projected points
 			projected_triangle.points[j] = projected_vertex;
 		}
+		
+		//Draw the normal extending from the point of the normal
+		vec3_t face_center = get_center_vertex(transformed_vertices, 3);
+
+		normal = vec3_add(face_center, normal); //position normal relative to a vertex (normal is currently relative to origin)
+
+		//Project normal and vertex points
+		vec2_t projected_normal = project_2d(normal, FOV);
+		vec2_t projected_face_center = project_2d(face_center, FOV);
+
+		//Center projected point onto screen coordinates
+		projected_face_center.x += get_origin_x();
+		projected_face_center.y += get_origin_y();
+		projected_normal.x += get_origin_x();
+		projected_normal.y += get_origin_y();
+
+		draw_line((int) projected_face_center.x, (int) projected_face_center.y, (int) projected_normal.x, (int) projected_normal.y, BLUE);
 
 		// Add triangle for rendering
 		array_push(triangles_to_render, projected_triangle);

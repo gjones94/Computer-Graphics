@@ -42,14 +42,37 @@ vec2_t vec2_subtract(vec2_t a, vec2_t b);
 vec2_t vec2_multiply(vec2_t a, float scale_factor);
 vec2_t vec2_divide(vec2_t a, float scale_factor);
 float vec2_dot(vec2_t a, vec2_t b);
+void vec2_normalize(vec2_t *v);
 
 //=========================================================
 // VECTOR 3D
 //=========================================================
-vec3_t rotate(vec3_t vector, float angle, Axis axis);
-float vec3_length(vec3_t v);
-vec3_t vec3_add(vec3_t a, vec3_t b);
 
+/// <summary>
+/// Rotates a given vector around specified axis by the number of degrees provided
+/// </summary>
+/// <param name="vector"></param>
+/// <param name="angle"></param>
+/// <param name="axis"></param>
+/// <returns>vec3_t vector with rotation applied</returns>
+vec3_t rotate(vec3_t vector, float angle, Axis axis);
+
+
+/// <summary>
+/// Calculates the length of a vector (using pythagorean theorem)
+/// </summary>
+/// <param name="v"></param>
+/// <returns></returns>
+float vec3_length(vec3_t v);
+
+/// <summary>
+/// Adds on vector to another vector 
+/// (Centers vector A relative to vector B)
+/// </summary>
+/// <param name="a"></param>
+/// <param name="b"></param>
+/// <returns>vec3_t A relative to B</returns>
+vec3_t vec3_add(vec3_t a, vec3_t b);
 
 /// <summary>
 /// Subtracts one vector from another.
@@ -61,11 +84,37 @@ vec3_t vec3_add(vec3_t a, vec3_t b);
 /// <param name="source"> The tail of the Vector </param>
 /// <returns> Source->Target (Target - Source)</returns>
 vec3_t vec3_subtract(vec3_t target, vec3_t source);
+
+/// <summary>
+/// Uses the average to returns a vertex centered (averaged) between all vertices provided
+/// </summary>
+/// <param name="vectors"></param>
+/// <param name="length"></param>
+/// <returns></returns>
+vec3_t get_center_vertex(vec3_t* vectors, int length);
+
+
+/// <summary>
+/// Multiplies a vector by a factor
+/// </summary>
+/// <param name="a"></param>
+/// <param name="scale_factor"></param>
+/// <returns>vec3_t of vector scaled up by factor</returns>
 vec3_t vec3_multiply(vec3_t a, float scale_factor);
+
+/// <summary>
+/// Divides a vector by a factor
+/// </summary>
+/// <param name="a"></param>
+/// <param name="scale_factor"></param>
+/// <returns>vec3_t of vector scaled down by factor</returns>
 vec3_t vec3_divide(vec3_t a, float scale_factor);
 
 /// <summary>
-/// Returns a vector perpindicular to both a and b
+/// Returns a vector perpendicular to both a and b.
+/// Normal vector returned is NOT relative to the vectors provided, it is centered relative to the origin.
+/// To center vector relative to one of these vertices, add the normal vector returned by the function
+/// to the vertex you wish to center it to
 /// </summary>
 /// <param name="a"></param>
 /// <param name="b"></param>
@@ -87,3 +136,10 @@ vec3_t vec3_cross(vec3_t a, vec3_t b);
 /// </remark>
 /// <returns></returns>
 float vec3_dot(vec3_t a, vec3_t b);
+
+/// <summary>
+/// Returns a vector with a unit length of 1
+/// </summary>
+/// <param name="v"></param>
+/// <returns>vec3_t normalized vector</returns>
+void vec3_normalize(vec3_t *v);

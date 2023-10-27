@@ -8,7 +8,7 @@
 #include "config.h"
 #include "mesh.h"
 
-#define CONTROL_MOVEMENT .01f
+#define CONTROL_MOVEMENT .03f
 
 //=========================================================
 // FUNCTION PROTOTYPES

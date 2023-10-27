@@ -108,7 +108,7 @@ void load_mesh_from_file(const char* filename)
 		printf("Unable to read file %s\n", filename);
 	}
 	
-	mesh.rotation.z = 180.0f;
+	mesh.rotation.z = 180;
 	mesh.color = BLUE_GREEN;
 }
 

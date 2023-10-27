@@ -19,7 +19,7 @@ void print_vertex(vec3_t point)
 
 float vec2_length(vec2_t v)
 {
-	return sqrt(pow(v.x, 2) + pow(v.y, 2));
+	return sqrtf(powf(v.x, 2) + powf(v.y, 2));
 }
 
 vec2_t vec2_add(vec2_t a, vec2_t b)
@@ -49,6 +49,14 @@ vec2_t vec2_divide(vec2_t a, float scale_factor)
 float vec2_dot(vec2_t a, vec2_t b)
 {
 	return (a.x * b.x) + (a.y * b.y);
+}
+
+void vec2_normalize(vec2_t* v)
+{
+	float length = vec2_length(*v);
+
+	v->x /= length;
+	v->y /= length;
 }
 
 
@@ -98,13 +106,30 @@ vec3_t rotate(vec3_t vector, float angle, Axis axis)
 
 float vec3_length(vec3_t v)
 {
-	return sqrt(pow(v.x, 2) + pow(v.y, 2) + pow(v.z, 2));
+	return sqrtf(powf(v.x, 2) + powf(v.y, 2) + powf(v.z, 2));
 }
 
 vec3_t vec3_add(vec3_t a, vec3_t b)
 {
 	vec3_t result = { a.x + b.x, a.y + b.y, a.z + b.z };
 	return result;
+}
+
+vec3_t get_center_vertex(vec3_t* vectors, int length)
+{
+	float x = 0.0f;
+	float y = 0.0f;
+	float z = 0.0f;
+
+	for (int i = 0; i < length; i++)
+	{
+		x += vectors[i].x;
+		y += vectors[i].y;
+		z += vectors[i].z;
+	}
+
+	vec3_t centered_vertex = { .x = x / length, .y = y / length, .z = z / length };
+	return centered_vertex;
 }
 
 vec3_t vec3_subtract(vec3_t target, vec3_t source)
@@ -139,4 +164,13 @@ vec3_t vec3_cross(vec3_t a, vec3_t b)
 float vec3_dot(vec3_t a, vec3_t b)
 {
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
+}
+
+void vec3_normalize(vec3_t *v)
+{
+	float length = vec3_length(*v);
+
+	v->x /= (10 * length);
+	v->y /= (10 * length);
+	v->z /= (10 * length);
 }
