@@ -92,7 +92,6 @@ void update()
 		/*
 		==============================================================================================
 			 Backface Culling
-
 					 N
 					 |
 					 a
@@ -263,16 +262,17 @@ void draw_triangle(triangle_t triangle, uint32_t color)
 
 void draw_normal(vec3_t normal, vec3_t* face_vertices, int num_vertices, uint32_t color)
 {
-	//Draw the normal extending from the point of the normal
+	// Get center of face
 	vec3_t face_center = get_center_vertex(face_vertices, num_vertices);
 
-	normal = vec3_add(face_center, normal); //position normal relative to a vertex (normal is currently relative to origin)
+	// Position normal relative to a vertex (normal is currently relative to origin)
+	normal = vec3_add(face_center, normal); 
 
-	//Project normal and vertex points
+	// Project normal and vertex points into 2d space
 	vec2_t projected_normal = project_2d(normal, FOV);
 	vec2_t projected_face_center = project_2d(face_center, FOV);
 
-	//Center projected point onto screen coordinates
+	// Center projected point onto screen coordinates
 	projected_face_center.x += get_origin_x();
 	projected_face_center.y += get_origin_y();
 	projected_normal.x += get_origin_x();
