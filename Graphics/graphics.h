@@ -10,7 +10,7 @@
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 1000
 #define COLOR_BACKGROUND 0xFF000000
-#define FOV 800
+#define FOV 900
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
 
@@ -66,6 +66,11 @@ void draw_line(int x1, int y1, int x2, int y2, uint32_t color);
 /// draw a triangle
 /// </summary>
 void draw_triangle(triangle_t triangle, uint32_t color);
+
+/// <summary>
+/// Draws a normal vector relative to the face
+/// </summary>
+void draw_normal(vec3_t normal, vec3_t* face_vertices, int num_vertices, uint32_t color);
 
 /// <summary>
 /// Update objects to render
