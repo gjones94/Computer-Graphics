@@ -3,7 +3,6 @@
 #include "config.h"
 #include "vector.h"
 #include "cube.h"
-#include "utils.h"
 #include "vector.h"
 #include "mesh.h"
 #include "array.h"
@@ -162,8 +161,14 @@ void render()
 	throttle_fps();
 
 	int size = array_length(triangles_to_render);
+
+	//triangle_t test = { 400, 500, 300, 200, 100, 800 };
+	//draw_triangle(test, BLUE);
+	//fill_triangle(test, BLUE);
+
 	for (int i = 0; i < size; i++)
 	{
+		fill_triangle(triangles_to_render[i], BLUE);
 		draw_triangle(triangles_to_render[i], mesh.color);
 	}
 

@@ -63,9 +63,15 @@ void draw_pixel(int x, int y, uint32_t color);
 void draw_line(int x1, int y1, int x2, int y2, uint32_t color);
 
 /// <summary>
-/// draw a triangle
+/// Draw a triangle
 /// </summary>
 void draw_triangle(triangle_t triangle, uint32_t color);
+
+/// <summary>
+/// Draw triangle and fill with color
+/// </summary>
+void fill_triangle(triangle_t triangle, uint32_t color);
+
 
 /// <summary>
 /// Draws a normal vector relative to the face

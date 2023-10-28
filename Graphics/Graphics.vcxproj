@@ -138,7 +138,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="graphics.c" />
     <ClCompile Include="mesh.c" />
-    <ClCompile Include="utils.c" />
+    <ClCompile Include="triangle.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
@@ -147,7 +147,7 @@
     <ClInclude Include="cube.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="mesh.h" />
-    <ClInclude Include="utils.h" />
+    <ClInclude Include="triangle.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>

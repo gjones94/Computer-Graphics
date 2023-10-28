@@ -4,7 +4,6 @@
 #include "graphics.h"
 #include "vector.h"
 #include "cube.h"
-#include "utils.h"
 #include "config.h"
 #include "mesh.h"
 
@@ -23,12 +22,13 @@ cube3d_t* cube;
 int main(int argc, char* args[])
 {
 	running = init_graphics();
+
 	if (!running)
 	{
 		return -1;
 	}
 
-	load_mesh_from_file("f22.obj");
+	load_mesh_from_file("cube.obj");
 
 	while (running)
 	{

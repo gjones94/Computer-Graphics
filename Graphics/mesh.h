@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include "triangle.h"
 #include "vector.h"
 
 typedef struct
@@ -8,11 +9,6 @@ typedef struct
 
 } face_t;
 
-typedef struct
-{
-	vec2_t points[3];
-
-} triangle_t;
 
 typedef struct
 {
