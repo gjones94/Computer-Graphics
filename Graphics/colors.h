@@ -1,0 +1,11 @@
+#pragma once
+
+//ABGR
+#define BLUE 0xFFFF0000
+#define BLUE_GREEN 0xFFAAFF00
+#define GREEN 0xFF00FF00
+#define GREY 0xFF333333
+#define PURPLE 0xFFCC00CC
+#define RED 0xFF0000FF
+#define BLACK 0xFF000000
+#define WHITE 0xFFFFFFFF

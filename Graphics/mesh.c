@@ -4,20 +4,40 @@
 #include "mesh.h"
 #include "graphics.h"
 #include "array.h"
-#include "config.h"
+#include "colors.h"
+
+
+//========================================================
+//	PROTOTYPES
+//========================================================
+	static mesh_t* init_mesh();
+//========================================================
 
 mesh_t mesh =
 {
 	.vertices = NULL,
+	.num_faces = 0,
 	.faces = NULL,
+	.num_vertices = 0,
 	.rotation = { .x = 0, .y = 0, .z = 0 },
 };
 
-void load_mesh_from_file(const char* filename)
+mesh_t* meshes[MAX_NUM_MESHES];
+int num_meshes;
+
+bool load_mesh_from_file(const char* filename)
 {
 	FILE* file;
 	char line[200];
 	fopen_s(&file, filename, "r");
+
+	mesh_t* mesh = init_mesh();
+
+	if (mesh == NULL)
+	{
+		printf("Unable to allocate space for mesh");
+		return false;
+	}
 
 	if (file)
 	{
@@ -27,6 +47,8 @@ void load_mesh_from_file(const char* filename)
 			char* context = NULL;
 			char* token = NULL;
 			token = strtok_s(line, " ", &context);
+
+			//If line is vertex
 			if (strcmp(token, "v") == 0)
 			{
 				float vertices[3] = { 0.0, 0.0, 0.0 };
@@ -38,11 +60,13 @@ void load_mesh_from_file(const char* filename)
 				}
 
 				vec3_t vertex = { vertices[0], vertices[1], vertices[2] };
-				array_push(mesh.vertices, vertex);
+				array_push(mesh->vertices, vertex);
+				mesh->num_vertices++;
 			}
+			//else if line is face
 			else if(strcmp(token, "f") == 0)
 			{
-				int base_10 = 10;
+				int base_10 = 10; //used for strtol function Radix to determine base
 				int faces[3] = {0,0,0};
 				int face_count = 0;
 
@@ -52,7 +76,8 @@ void load_mesh_from_file(const char* filename)
 				}
 
 				face_t face = { faces[0], faces[1], faces[2] };
-				array_push(mesh.faces, face);
+				array_push(mesh->faces, face);
+				mesh->num_faces++;
 			}
 		}
 	}
@@ -60,24 +85,65 @@ void load_mesh_from_file(const char* filename)
 	{
 		printf("Unable to read file %s\n", filename);
 	}
-	
-	mesh.rotation.z = 180;
-	mesh.color = BLUE_GREEN;
+
+	if (num_meshes < MAX_NUM_MESHES)
+	{
+		meshes[num_meshes++] = mesh;
+	}
+	else
+	{
+		printf("Unable to add mesh. Number of maximum meshes has been exceeded.\n");
+		return false;
+	}
+
+	return true;
 }
 
-void rotate_mesh(float angle, Axis axis)
+void rotate_mesh(mesh_t* mesh, float angle, Axis axis)
 {
-	int num_vertices = array_length(mesh.vertices);
+	int num_vertices = mesh->num_vertices;
 	switch (axis)
 	{
 		case X_AXIS:
-			mesh.rotation.x += angle;
+			mesh->rotation.x += angle;
 			break;
 		case Y_AXIS:
-			mesh.rotation.y += angle;
+			mesh->rotation.y += angle;
 			break;
 		case Z_AXIS:
-			mesh.rotation.z += angle;
+			mesh->rotation.z += angle;
 			break;
 	}
+}
+
+void free_meshes()
+{
+	for (int i = 0; i < num_meshes; i++)
+	{
+		mesh_t* mesh = meshes[i];
+		array_free(mesh->faces);
+		array_free(mesh->vertices);
+		free(mesh);
+	}
+}
+
+static mesh_t* init_mesh()
+{
+	mesh_t* mesh = (mesh_t*)malloc(sizeof(mesh_t));
+
+	if (mesh == NULL)
+	{
+		return NULL;
+	}
+
+	mesh->vertices = NULL;
+	mesh->num_faces = 0;
+	mesh->faces = NULL;
+	mesh->num_faces = 0;
+	mesh->rotation.x = 0;
+	mesh->rotation.y = 0;
+	mesh->rotation.z = 0;
+	mesh->color = BLUE;
+
+	return mesh;
 }

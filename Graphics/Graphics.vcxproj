@@ -134,7 +134,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="array.c" />
-    <ClCompile Include="cube.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="graphics.c" />
     <ClCompile Include="mesh.c" />
@@ -143,8 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="array.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="cube.h" />
+    <ClInclude Include="colors.h" />
     <ClInclude Include="graphics.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="triangle.h" />

@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include "graphics.h"
-#include "config.h"
-#include "vector.h"
-#include "cube.h"
+#include "colors.h"
 #include "vector.h"
 #include "mesh.h"
 #include "array.h"
@@ -16,13 +14,16 @@ SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
 
 vec3_t camera_position; 
+triangle_t* triangles_to_render;
 float const angle_increment = 0.005f;
 int originX = 0;
 int originY = 0;
 bool running = false;
 int previous_frame_time = 0;
 
-triangle_t* triangles_to_render;
+bool backface_culling_enabled;
+bool wireframe_enabled;
+bool fill_enabled;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -58,101 +59,106 @@ void update()
 {
 	triangles_to_render = NULL;
 
-	int num_faces = array_length(mesh.faces);
-	for (int i = 0; i < num_faces; i++)
+	for (int m = 0; m < num_meshes; m++)
 	{
-		face_t mesh_face = mesh.faces[i];
+		mesh_t* mesh = meshes[m];
+		int num_faces = mesh->num_faces;
 
-		// Get each vertex for face
-		vec3_t face_vertices[3];
-
-		// face stores vertex index in vertices array
-		// vertex index references start with 1 instead of 0, need to get to zero-based index by subtracting 1
-		face_vertices[0] = mesh.vertices[mesh_face.a - 1]; 
-		face_vertices[1] = mesh.vertices[mesh_face.b - 1];
-		face_vertices[2] = mesh.vertices[mesh_face.c - 1];
-
-		triangle_t projected_triangle;
-		vec3_t transformed_vertices[3];
-
-		// Change World Position
-		for (int j = 0; j < 3; j++)
+		for (int i = 0; i < num_faces; i++)
 		{
-			vec3_t transformed_vertex;
-			transformed_vertex = rotate(face_vertices[j], mesh.rotation.x, X_AXIS);
-			transformed_vertex = rotate(transformed_vertex, mesh.rotation.y, Y_AXIS);
-			transformed_vertex = rotate(transformed_vertex, mesh.rotation.z, Z_AXIS);
+			face_t mesh_face = mesh->faces[i];
 
-			// Move point away from camera
-			transformed_vertex.z += 5; // move point away from origin
-			transformed_vertices[j] = transformed_vertex;
+			// Get each vertex for face
+			vec3_t face_vertices[3];
+
+			// face stores vertex index in vertices array
+			// vertex index references start with 1 instead of 0, need to get to zero-based index by subtracting 1
+			face_vertices[0] = mesh->vertices[mesh_face.a - 1];
+			face_vertices[1] = mesh->vertices[mesh_face.b - 1];
+			face_vertices[2] = mesh->vertices[mesh_face.c - 1];
+
+			triangle_t projected_triangle;
+			vec3_t transformed_vertices[3];
+
+			// Change World Position
+			for (int j = 0; j < 3; j++)
+			{
+				vec3_t transformed_vertex;
+				transformed_vertex = rotate(face_vertices[j], mesh->rotation.x, X_AXIS);
+				transformed_vertex = rotate(transformed_vertex, mesh->rotation.y, Y_AXIS);
+				transformed_vertex = rotate(transformed_vertex, mesh->rotation.z, Z_AXIS);
+
+				// Move point away from camera
+				transformed_vertex.z += 5; // move point away from origin
+				transformed_vertices[j] = transformed_vertex;
+			}
+
+			/*
+			==============================================================================================
+				 Backface Culling
+						 N
+						 |
+						 a
+						/|\
+					   / | \
+					  c  |  b
+						 |
+					  camera
+
+				1. Get A->B = B-A
+				2. Get A->C = C-A
+				3. Get A->Camera = Camera - A
+				4. Get Cross Product (AB X AC) = Perpindicular Normal at A
+				5. Get Dot Product of N and A->Camera
+				6. Evaluate if Normal is at all facing camera or not
+			==============================================================================================
+			*/
+
+			vec3_t c = transformed_vertices[2]; /*  b   c  */ // b (index) --> c (middle) = CLOCKWISE
+			vec3_t b = transformed_vertices[1]; /*   \ /   */
+			vec3_t a = transformed_vertices[0]; /*    a    */ // Thumb toward you
+
+			// Get vector AB and vector AC
+			vec3_t ab = vec3_subtract(b, a); // b - a
+			vec3_t ac = vec3_subtract(c, a); // c - a
+
+			// Get Vertex A to Camera Vector: A->Camera
+			vec3_t camera_ray = vec3_subtract(camera_position, a); // camera - a
+
+			// Get Normal Vector of Face/Surface of the mesh
+			vec3_t normal = vec3_cross(ab, ac);
+			vec3_normalize(&normal);
+
+			// Determine if the Face/Surface Normal is pointing in the same general direction as the ray to the camera
+			// Dot product returns a value >= 0 if the surface is facing the camera, otherwise it is < 0
+			float dot_product = vec3_dot(normal, camera_ray);
+			if (dot_product < 0)
+			{
+				// Do not show faces that are not facing the camera
+				continue;
+			}
+
+			// Project and translate to screen coordinates
+			for (int j = 0; j < 3; j++)
+			{
+				// Project into 2d space
+				vec2_t projected_vertex = project_2d(transformed_vertices[j], FOV);
+
+				// Translate vertex relative to origin
+				projected_vertex.x += get_origin_x();
+				projected_vertex.y += get_origin_y();
+
+
+				// Save triangle mesh with projected points
+				projected_triangle.points[j] = projected_vertex;
+			}
+
+			//For Debugging / Fun
+			draw_normal(normal, transformed_vertices, 3, BLUE);
+
+			// Add triangle for rendering
+			array_push(triangles_to_render, projected_triangle);
 		}
-
-		/*
-		==============================================================================================
-			 Backface Culling
-					 N
-					 |
-					 a
-					/|\
-				   / | \
-				  c  |  b
-					 |
-				  camera
-
-			1. Get A->B = B-A
-			2. Get A->C = C-A
-			3. Get A->Camera = Camera - A
-			4. Get Cross Product (AB X AC) = Perpindicular Normal at A
-			5. Get Dot Product of N and A->Camera
-			6. Evaluate if Normal is at all facing camera or not
-		==============================================================================================
-		*/
-
-		vec3_t c = transformed_vertices[2]; /*  b   c  */ // b (index) --> c (middle) = CLOCKWISE
-		vec3_t b = transformed_vertices[1]; /*   \ /   */
-		vec3_t a = transformed_vertices[0]; /*    a    */ // Thumb toward you
-
-		// Get vector AB and vector AC
-		vec3_t ab = vec3_subtract(b, a); // b - a
-		vec3_t ac = vec3_subtract(c, a); // c - a
-
-		// Get Vertex A to Camera Vector: A->Camera
-		vec3_t camera_ray = vec3_subtract(camera_position,  a); // camera - a
-
-		// Get Normal Vector of Face/Surface of the mesh
-		vec3_t normal = vec3_cross(ab, ac);
-		vec3_normalize(&normal);
-
-		// Determine if the Face/Surface Normal is pointing in the same general direction as the ray to the camera
-		// Dot product returns a value >= 0 if the surface is facing the camera, otherwise it is < 0
-		float dot_product = vec3_dot(normal, camera_ray);
-		if (dot_product < 0)
-		{
-			// Do not show faces that are not facing the camera
-			continue;
-		}
-
-		// Project and translate to screen coordinates
-		for(int j = 0; j < 3; j++)
-		{
-			// Project into 2d space
-			vec2_t projected_vertex = project_2d(transformed_vertices[j], FOV);
-
-			// Translate vertex relative to origin
-			projected_vertex.x += get_origin_x();
-			projected_vertex.y += get_origin_y();
-
-
-			// Save triangle mesh with projected points
-			projected_triangle.points[j] = projected_vertex;
-		}
-		
-		//For Debugging / Fun
-		draw_normal(normal, transformed_vertices, 3, BLUE);
-
-		// Add triangle for rendering
-		array_push(triangles_to_render, projected_triangle);
 	}
 }
 
@@ -162,14 +168,10 @@ void render()
 
 	int size = array_length(triangles_to_render);
 
-	//triangle_t test = { 400, 500, 300, 200, 100, 800 };
-	//draw_triangle(test, BLUE);
-	//fill_triangle(test, BLUE);
-
 	for (int i = 0; i < size; i++)
 	{
 		fill_triangle(triangles_to_render[i], BLUE);
-		draw_triangle(triangles_to_render[i], mesh.color);
+		draw_triangle(triangles_to_render[i], WHITE);
 	}
 
 	array_free(triangles_to_render);
@@ -298,10 +300,9 @@ int get_origin_y()
 
 void free_resources()
 {
-	array_free(mesh.faces);
-	array_free(mesh.vertices);
-	free(buffer);
+	free_meshes();
 
+	free(buffer);
 	destroy_window();
 }
 

@@ -24,9 +24,6 @@
     <ClCompile Include="vector.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cube.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mesh.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -44,10 +41,7 @@
     <ClInclude Include="vector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cube.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="config.h">
+    <ClInclude Include="colors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="mesh.h">

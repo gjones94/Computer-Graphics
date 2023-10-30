@@ -1,6 +1,7 @@
 #pragma once
 #include <stdbool.h>
 #include <SDL.h>
+#include "colors.h"
 #include "vector.h"
 #include "mesh.h"
 
@@ -9,8 +10,8 @@
 //=========================================================
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 1000
-#define COLOR_BACKGROUND 0xFF000000
-#define FOV 900
+#define COLOR_BACKGROUND BLACK
+#define FOV 700
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
 
@@ -27,17 +28,21 @@ extern int originY;
 extern bool running;
 extern int previous_frame_time;
 
+//View Options
+extern bool backface_culling_enabled;
+extern bool wireframe_enabled;
+extern bool fill_enabled;
+
 //=========================================================
 // FUNCTION PROTOTYPES
 //=========================================================
 bool init_graphics();
 
 /// <summary>
-/// loads vertices for drawing onto buffer
+/// Add mesh to be displayed
 /// </summary>
-/// <param name="vertices"></param>
-/// <param name="num_vertices"></param>
-void load_vertices(vec3_t* vertices, int num_vertices);
+/// <param name="mesh"></param>
+void add_mesh(mesh_t* mesh_to_add);
 
 /// <summary>
 /// Draw grid on window
@@ -71,7 +76,6 @@ void draw_triangle(triangle_t triangle, uint32_t color);
 /// Draw triangle and fill with color
 /// </summary>
 void fill_triangle(triangle_t triangle, uint32_t color);
-
 
 /// <summary>
 /// Draws a normal vector relative to the face

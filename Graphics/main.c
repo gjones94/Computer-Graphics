@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdbool.h>
+
 #include "graphics.h"
 #include "vector.h"
-#include "cube.h"
-#include "config.h"
+#include "colors.h"
 #include "mesh.h"
 
 #define CONTROL_MOVEMENT .03f
@@ -17,7 +17,6 @@ void process_input(void);
 //=========================================================
 // VARIABLES
 //=========================================================
-cube3d_t* cube;
 
 int main(int argc, char* args[])
 {
@@ -28,15 +27,18 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	load_mesh_from_file("cube.obj");
+	bool success = load_mesh_from_file("cube.obj");
 
-	while (running)
+	if (success)
 	{
-		process_input();
+		while (running)
+		{
+			process_input();
 
-		update();
+			update();
 
-		render();
+			render();
+		}
 	}
 
 	free_resources();
@@ -48,6 +50,8 @@ void process_input(void)
 {
 	SDL_Event event;
 	SDL_PollEvent(&event);
+
+	mesh_t* mesh = meshes[0];
 
 	switch (event.type)
 	{
@@ -64,32 +68,32 @@ void process_input(void)
 			//X AXIS
 			if (event.key.keysym.sym == SDLK_d)
 			{
-				rotate_mesh((float) CONTROL_MOVEMENT, X_AXIS);
+				rotate_mesh(mesh, (float) CONTROL_MOVEMENT, X_AXIS);
 			}
 
 			if (event.key.keysym.sym == SDLK_a)
 			{
-				rotate_mesh((float) - CONTROL_MOVEMENT, X_AXIS);
+				rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, X_AXIS);
 			}
 
 			//Y AXIS
 			if (event.key.keysym.sym == SDLK_LEFT)
 			{
-				rotate_mesh((float) CONTROL_MOVEMENT, Y_AXIS);
+				rotate_mesh(mesh, (float) CONTROL_MOVEMENT, Y_AXIS);
 			}
 			if (event.key.keysym.sym == SDLK_RIGHT)
 			{
-				rotate_mesh((float) - CONTROL_MOVEMENT, Y_AXIS);
+				rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, Y_AXIS);
 			}
 
 			//Z AXIS
 			if (event.key.keysym.sym == SDLK_DOWN)
 			{
-				rotate_mesh((float) CONTROL_MOVEMENT, Z_AXIS);
+				rotate_mesh(mesh, (float) CONTROL_MOVEMENT, Z_AXIS);
 			}
 			if (event.key.keysym.sym == SDLK_UP)
 			{
-				rotate_mesh((float) - CONTROL_MOVEMENT, Z_AXIS);
+				rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, Z_AXIS);
 			}
 
 			break;
