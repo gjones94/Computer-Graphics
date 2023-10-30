@@ -30,6 +30,7 @@ extern int previous_frame_time;
 
 //View Options
 extern bool backface_culling_enabled;
+extern bool normal_enabled;
 extern bool wireframe_enabled;
 extern bool fill_enabled;
 

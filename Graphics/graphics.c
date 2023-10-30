@@ -18,12 +18,14 @@ triangle_t* triangles_to_render;
 float const angle_increment = 0.005f;
 int originX = 0;
 int originY = 0;
+float rotation = 0.0f;
 bool running = false;
 int previous_frame_time = 0;
 
-bool backface_culling_enabled;
-bool wireframe_enabled;
-bool fill_enabled;
+bool backface_culling_enabled = true;
+bool wireframe_enabled = true;
+bool fill_enabled = true;
+bool normal_enabled = false;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -33,6 +35,7 @@ static bool init_window();
 static bool init_buffers(void);
 static void init_camera();
 static void throttle_fps(); //delay drawing to match desired FPS
+static vec3_t* transform_vertices();
 static void render_texture(); // Update texture with buffer and copy texture to renderer
 static void clear_buffer(uint32_t color);
 static void destroy_window();
@@ -58,6 +61,13 @@ bool init_graphics()
 void update()
 {
 	triangles_to_render = NULL;
+	rotation += angle_increment;
+	for (int i = 0; i < num_meshes; i++)
+	{
+		meshes[i]->rotation.x = rotation;
+		meshes[i]->rotation.y = rotation;
+		meshes[i]->rotation.z = rotation;
+	}
 
 	for (int m = 0; m < num_meshes; m++)
 	{
@@ -135,7 +145,10 @@ void update()
 			if (dot_product < 0)
 			{
 				// Do not show faces that are not facing the camera
-				continue;
+				if (backface_culling_enabled)
+				{
+					continue;
+				}
 			}
 
 			// Project and translate to screen coordinates
@@ -154,8 +167,12 @@ void update()
 			}
 
 			//For Debugging / Fun
-			draw_normal(normal, transformed_vertices, 3, BLUE);
+			if (normal_enabled)
+			{
+				draw_normal(normal, transformed_vertices, 3, RED);
+			}
 
+			projected_triangle.color = mesh_face.color;
 			// Add triangle for rendering
 			array_push(triangles_to_render, projected_triangle);
 		}
@@ -170,8 +187,15 @@ void render()
 
 	for (int i = 0; i < size; i++)
 	{
-		fill_triangle(triangles_to_render[i], BLUE);
-		draw_triangle(triangles_to_render[i], WHITE);
+		if (fill_enabled)
+		{
+			fill_triangle(triangles_to_render[i], triangles_to_render[i].color);
+		}
+
+		if (wireframe_enabled)
+		{
+			draw_triangle(triangles_to_render[i], WHITE);
+		}
 	}
 
 	array_free(triangles_to_render);
@@ -285,7 +309,7 @@ void draw_normal(vec3_t normal, vec3_t* face_vertices, int num_vertices, uint32_
 	projected_normal.x += get_origin_x();
 	projected_normal.y += get_origin_y();
 
-	draw_line((int)projected_face_center.x, (int)projected_face_center.y, (int)projected_normal.x, (int)projected_normal.y, BLUE);
+	draw_line((int)projected_face_center.x, (int)projected_face_center.y, (int)projected_normal.x, (int)projected_normal.y, color);
 }
 
 int get_origin_x()

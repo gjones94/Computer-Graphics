@@ -7,6 +7,7 @@
 typedef struct
 {
 	int a, b, c;
+	uint32_t color;
 
 } face_t;
 
@@ -18,7 +19,6 @@ typedef struct
 	face_t* faces;
 	int num_faces;
 	vec3_t  rotation; // current rotation of object (x, y, z)
-	uint32_t color;
 
 } mesh_t;
 

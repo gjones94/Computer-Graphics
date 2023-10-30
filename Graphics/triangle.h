@@ -5,6 +5,7 @@
 typedef struct
 {
 	vec2_t points[3];
+	uint32_t color;
 
 } triangle_t;
 

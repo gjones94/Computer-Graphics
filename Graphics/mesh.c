@@ -70,12 +70,33 @@ bool load_mesh_from_file(const char* filename)
 				int faces[3] = {0,0,0};
 				int face_count = 0;
 
+				int index = 0;
+				uint32_t face_color = RED;
 				while (token = strtok_s(NULL, " ", &context))
 				{
-					faces[face_count++] = strtol(token, NULL, base_10);
+					if(index != 3) //add face vertex reference
+					{
+						faces[face_count++] = strtol(token, NULL, base_10);
+						index++;
+					}
+					else //add color of face
+					{
+						switch (*token)
+						{
+							case 'r':
+								face_color = RED;
+								break;
+							case 'g':
+								face_color = GREEN;
+								break;
+							case 'b':
+								face_color = BLUE;
+								break;
+						}
+					}
 				}
 
-				face_t face = { faces[0], faces[1], faces[2] };
+				face_t face = { faces[0], faces[1], faces[2], .color = face_color };
 				array_push(mesh->faces, face);
 				mesh->num_faces++;
 			}
@@ -143,7 +164,6 @@ static mesh_t* init_mesh()
 	mesh->rotation.x = 0;
 	mesh->rotation.y = 0;
 	mesh->rotation.z = 0;
-	mesh->color = BLUE;
 
 	return mesh;
 }

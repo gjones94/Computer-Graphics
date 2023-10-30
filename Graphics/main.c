@@ -59,42 +59,86 @@ void process_input(void)
 			running = false;
 			break;
 		case SDL_KEYDOWN:
+			
+			if (event.key.keysym.sym == SDLK_w)
+			{
+				printf("Wireframe enabled\n");
+				wireframe_enabled = true;
+			}
+			else if (event.key.keysym.sym == SDLK_q)
+			{
+				printf("Wireframe disabled\n");
+				wireframe_enabled = false;
+			}
+
+			if (event.key.keysym.sym == SDLK_f)
+			{
+				printf("fill enabled\n");
+				fill_enabled = true;
+			}
+			else if (event.key.keysym.sym == SDLK_d)
+			{
+				printf("fill disabled\n");
+				fill_enabled = false;
+			}
+
+			if (event.key.keysym.sym == SDLK_c)
+			{
+				printf("culling enabled\n");
+				backface_culling_enabled = true;
+			}
+			else if (event.key.keysym.sym == SDLK_x)
+			{
+				printf("culling disabled\n");
+				backface_culling_enabled = false;
+			}
+
+			if (event.key.keysym.sym == SDLK_n)
+			{
+				printf("normal enabled\n");
+				normal_enabled = true;
+			}
+			else if (event.key.keysym.sym == SDLK_b)
+			{
+				printf("normal disabled\n");
+				normal_enabled = false;
+			}
 
 			if (event.key.keysym.sym == SDLK_ESCAPE)
 			{
 				running = false;
 			}
 
-			//X AXIS
-			if (event.key.keysym.sym == SDLK_d)
-			{
-				rotate_mesh(mesh, (float) CONTROL_MOVEMENT, X_AXIS);
-			}
+			////X AXIS
+			//if (event.key.keysym.sym == SDLK_d)
+			//{
+			//	rotate_mesh(mesh, (float) CONTROL_MOVEMENT, X_AXIS);
+			//}
 
-			if (event.key.keysym.sym == SDLK_a)
-			{
-				rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, X_AXIS);
-			}
+			//if (event.key.keysym.sym == SDLK_a)
+			//{
+			//	rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, X_AXIS);
+			//}
 
-			//Y AXIS
-			if (event.key.keysym.sym == SDLK_LEFT)
-			{
-				rotate_mesh(mesh, (float) CONTROL_MOVEMENT, Y_AXIS);
-			}
-			if (event.key.keysym.sym == SDLK_RIGHT)
-			{
-				rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, Y_AXIS);
-			}
+			////Y AXIS
+			//if (event.key.keysym.sym == SDLK_LEFT)
+			//{
+			//	rotate_mesh(mesh, (float) CONTROL_MOVEMENT, Y_AXIS);
+			//}
+			//if (event.key.keysym.sym == SDLK_RIGHT)
+			//{
+			//	rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, Y_AXIS);
+			//}
 
-			//Z AXIS
-			if (event.key.keysym.sym == SDLK_DOWN)
-			{
-				rotate_mesh(mesh, (float) CONTROL_MOVEMENT, Z_AXIS);
-			}
-			if (event.key.keysym.sym == SDLK_UP)
-			{
-				rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, Z_AXIS);
-			}
+			////Z AXIS
+			//if (event.key.keysym.sym == SDLK_DOWN)
+			//{
+			//	rotate_mesh(mesh, (float) CONTROL_MOVEMENT, Z_AXIS);
+			//}
+			//if (event.key.keysym.sym == SDLK_UP)
+			//{
+			//	rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, Z_AXIS);
+			//}
 
 			break;
 	}
