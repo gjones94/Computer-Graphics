@@ -81,7 +81,7 @@ void fill_triangle(triangle_t triangle, uint32_t color);
 /// <summary>
 /// Draws a normal vector relative to the face
 /// </summary>
-void draw_normal(vec3_t normal, vec3_t* face_vertices, int num_vertices, uint32_t color);
+void draw_normal(normal2_t surface_normal, uint32_t color);
 
 /// <summary>
 /// Update objects to render
@@ -92,6 +92,19 @@ void update();
 /// Project perspective and render buffer onto display
 /// </summary>
 void render();
+
+/// <summary>
+/// Determines whether backface should be culled or not
+/// </summary>
+/// <param name="a">The perpindicular normal calculated from the surface of the face</param>
+/// <param name="b:">The starting vertex that the normal was calculated from</param>
+bool cull_backface(vec3_t a, vec3_t b, vec3_t c);
+
+/// <summary>
+/// returns start and end coordinates for the normal extending from the center of the vertices passed in
+/// The coordinates are already projected into 2d space
+/// </summary>
+normal2_t get_normal_vector_from_surface(vec3_t normal, vec3_t* face_vertices, int num_vertices);
 
 /// <summary>
 /// Obtain x coordinate center of window

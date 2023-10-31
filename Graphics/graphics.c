@@ -35,7 +35,6 @@ static bool init_window();
 static bool init_buffers(void);
 static void init_camera();
 static void throttle_fps(); //delay drawing to match desired FPS
-static vec3_t* transform_vertices();
 static void render_texture(); // Update texture with buffer and copy texture to renderer
 static void clear_buffer(uint32_t color);
 static void destroy_window();
@@ -103,53 +102,19 @@ void update()
 				transformed_vertices[j] = transformed_vertex;
 			}
 
-			/*
-			==============================================================================================
-				 Backface Culling
-						 N
-						 |
-						 a
-						/|\
-					   / | \
-					  c  |  b
-						 |
-					  camera
+			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
 
-				1. Get A->B = B-A
-				2. Get A->C = C-A
-				3. Get A->Camera = Camera - A
-				4. Get Cross Product (AB X AC) = Perpindicular Normal at A
-				5. Get Dot Product of N and A->Camera
-				6. Evaluate if Normal is at all facing camera or not
-			==============================================================================================
-			*/
+			vec3_t a = transformed_vertices[0];
+			vec3_t b = transformed_vertices[1];
+			vec3_t c = transformed_vertices[2];
 
-			vec3_t c = transformed_vertices[2]; /*  b   c  */ // b (index) --> c (middle) = CLOCKWISE
-			vec3_t b = transformed_vertices[1]; /*   \ /   */
-			vec3_t a = transformed_vertices[0]; /*    a    */ // Thumb toward you
+			bool crop_out_surface = cull_backface(a, b, c);
 
-			// Get vector AB and vector AC
-			vec3_t ab = vec3_subtract(b, a); // b - a
-			vec3_t ac = vec3_subtract(c, a); // c - a
-
-			// Get Vertex A to Camera Vector: A->Camera
-			vec3_t camera_ray = vec3_subtract(camera_position, a); // camera - a
-
-			// Get Normal Vector of Face/Surface of the mesh
-			vec3_t normal = vec3_cross(ab, ac);
-			vec3_normalize(&normal);
-
-			// Determine if the Face/Surface Normal is pointing in the same general direction as the ray to the camera
-			// Dot product returns a value >= 0 if the surface is facing the camera, otherwise it is < 0
-			float dot_product = vec3_dot(normal, camera_ray);
-			if (dot_product < 0)
+			if (crop_out_surface)
 			{
-				// Do not show faces that are not facing the camera
-				if (backface_culling_enabled)
-				{
-					continue;
-				}
+				continue;
 			}
+
 
 			// Project and translate to screen coordinates
 			for (int j = 0; j < 3; j++)
@@ -161,16 +126,14 @@ void update()
 				projected_vertex.x += get_origin_x();
 				projected_vertex.y += get_origin_y();
 
-
 				// Save triangle mesh with projected points
 				projected_triangle.points[j] = projected_vertex;
+				projected_triangle.avg_depth = depth;
 			}
 
-			//For Debugging / Fun
-			if (normal_enabled)
-			{
-				draw_normal(normal, transformed_vertices, 3, RED);
-			}
+			// Store projected surface normal in the triangle to render
+			vec3_t normal = get_normal(a, b, c);
+			projected_triangle.surface_normal = get_normal_vector_from_surface(normal, transformed_vertices, 3);
 
 			projected_triangle.color = mesh_face.color;
 			// Add triangle for rendering
@@ -195,6 +158,11 @@ void render()
 		if (wireframe_enabled)
 		{
 			draw_triangle(triangles_to_render[i], WHITE);
+		}
+
+		if (normal_enabled)
+		{
+			draw_normal(triangles_to_render[i].surface_normal, RED);
 		}
 	}
 
@@ -291,25 +259,84 @@ void draw_triangle(triangle_t triangle, uint32_t color)
 	);
 }
 
-void draw_normal(vec3_t normal, vec3_t* face_vertices, int num_vertices, uint32_t color)
+void draw_normal(normal2_t surface_normal, uint32_t color)
+{
+	// Center projected point onto screen coordinates
+	surface_normal.start_point.x += get_origin_x();
+	surface_normal.start_point.y += get_origin_y();
+	surface_normal.end_point.x += get_origin_y();
+	surface_normal.end_point.y += get_origin_y();
+
+	draw_line((int)surface_normal.start_point.x, (int)surface_normal.start_point.y, (int)surface_normal.end_point.x, (int)surface_normal.end_point.y, color);
+}
+
+normal2_t get_normal_vector_from_surface(vec3_t normal, vec3_t* face_vertices, int num_vertices)
 {
 	// Get center of face
 	vec3_t face_center = get_center_vertex(face_vertices, num_vertices);
 
 	// Position normal relative to a vertex (normal is currently relative to origin)
-	normal = vec3_add(face_center, normal); 
+	normal = vec3_add(face_center, normal);
 
 	// Project normal and vertex points into 2d space
 	vec2_t projected_normal = project_2d(normal, FOV);
 	vec2_t projected_face_center = project_2d(face_center, FOV);
 
-	// Center projected point onto screen coordinates
-	projected_face_center.x += get_origin_x();
-	projected_face_center.y += get_origin_y();
-	projected_normal.x += get_origin_x();
-	projected_normal.y += get_origin_y();
+	normal2_t projected_normal_from_surface = { .start_point = projected_face_center, .end_point = projected_normal };
 
-	draw_line((int)projected_face_center.x, (int)projected_face_center.y, (int)projected_normal.x, (int)projected_normal.y, color);
+	return projected_normal_from_surface;
+		
+}
+
+bool cull_backface(vec3_t a, vec3_t b, vec3_t c)
+{
+	/*
+		==============================================================================================
+			 Backface Culling
+					 N
+					 |
+					 a
+					/|\
+				   / | \
+				  c  |  b
+					 |
+				  camera
+	*/
+
+	/*
+		Get Normal
+		1. Get A->B = B - A
+		2. Get A->C = C - A
+		3. Get Cross Product(AB X AC) = Perpindicular Normal at A
+	*/
+	vec3_t normal = get_normal(a, b, c);
+
+	/*
+		Calculate Dot Product between ray to camera and the normal
+		4. Get A->Camera = Camera - A
+		5. Get Dot Product of N and A->Camera
+		6. Evaluate if Normal is at facing towards the camera
+		==============================================================================================
+	*/
+
+	vec3_t camera_ray = vec3_subtract(camera_position, a); // camera - a
+	float dot_product = vec3_dot(normal, camera_ray);
+
+	// 
+	//	A dot product >= 0 means the surface normal is facing towards the camera or is at least perpendicular to the camera
+	//						 N										N
+	//						/__  Camera				OR				|__  camera 
+	//
+	if (dot_product < 0)
+	{
+		// Do not show faces that are not facing the camera
+		if (backface_culling_enabled)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
 
 int get_origin_x()

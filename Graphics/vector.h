@@ -20,6 +20,13 @@ typedef struct
 
 typedef struct
 {
+	vec2_t start_point;
+	vec2_t end_point;
+
+} normal2_t;
+
+typedef struct
+{
 	float x;
 	float y;
 	float z;
@@ -111,6 +118,25 @@ vec3_t vec3_multiply(vec3_t a, float scale_factor);
 vec3_t vec3_divide(vec3_t a, float scale_factor);
 
 /// <summary>
+/// Get the normal (perpindicular) vector between 2 vectors ab and ac (center vertex is a)
+/// The vertices should be passed in a clockwise order (left hand coordinate system)
+/// The vector returned is NOT centered on this vertex, it is only a calculation of 
+/// the normal as if originating from origin
+/// </summary>
+/// <param name="a (center vertex)"></param>
+/// <param name="b"></param>
+/// <param name="c"></param>
+/// <returns>vec3_t normal of length 1</returns>
+vec3_t get_normal(vec3_t a, vec3_t b, vec3_t c);
+
+/// <summary>
+/// Returns a vector with a unit length of 1
+/// </summary>
+/// <param name="v"></param>
+/// <returns>vec3_t normalized vector</returns>
+void vec3_normalize(vec3_t* v);
+
+/// <summary>
 /// Returns a vector perpendicular to both a and b.
 /// Normal vector returned is NOT relative to the vectors provided, it is centered relative to the origin.
 /// To center vector relative to one of these vertices, add the normal vector returned by the function
@@ -136,10 +162,3 @@ vec3_t vec3_cross(vec3_t a, vec3_t b);
 /// </remark>
 /// <returns></returns>
 float vec3_dot(vec3_t a, vec3_t b);
-
-/// <summary>
-/// Returns a vector with a unit length of 1
-/// </summary>
-/// <param name="v"></param>
-/// <returns>vec3_t normalized vector</returns>
-void vec3_normalize(vec3_t *v);

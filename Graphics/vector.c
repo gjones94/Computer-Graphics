@@ -59,13 +59,6 @@ void vec2_normalize(vec2_t* v)
 	v->y /= length;
 }
 
-
-/// <summary>
-/// Projects a 3d vector into 2d vector
-/// </summary>
-/// <param name="vector"></param>
-/// <param name="FOV"></param>
-/// <returns></returns>
 vec2_t project_2d(vec3_t vector, int FOV)
 {
 	vec2_t projected_point =
@@ -166,11 +159,35 @@ float vec3_dot(vec3_t a, vec3_t b)
 	return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
+vec3_t get_normal(vec3_t a, vec3_t b, vec3_t c)
+{
+	// (Left hand coordinate system)
+	// 
+	//  b -> c  b (index) --> c (middle) = CLOCKWISE
+    //   \ /   
+	//    a     Thumb toward you
+	// 
+	// 1. Get A->B = B - A
+	// 2. Get A->C = C - A
+	// 3. Get Cross Product(AB X AC) = Perpindicular Normal at A
+
+	vec3_t ab = vec3_subtract(b, a); 
+	vec3_t ac = vec3_subtract(c, a);
+
+	// Get Normal Vector of Face/Surface of the mesh
+	vec3_t normal = vec3_cross(ab, ac); // clockwise (ab then ac)
+
+	// Scale normal to unit length of 1
+	vec3_normalize(&normal);
+
+	return normal;
+}
+
 void vec3_normalize(vec3_t *v)
 {
 	float length = vec3_length(*v);
 
-	v->x /= (10 * length);
-	v->y /= (10 * length);
-	v->z /= (10 * length);
+	v->x /= (length);
+	v->y /= (length);
+	v->z /= (length);
 }
