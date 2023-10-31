@@ -18,7 +18,9 @@ typedef struct
 	int num_vertices;
 	face_t* faces;
 	int num_faces;
+	vec3_t scale;
 	vec3_t  rotation; // current rotation of object (x, y, z)
+	vec3_t  translation; // current rotation of object (x, y, z)
 
 } mesh_t;
 

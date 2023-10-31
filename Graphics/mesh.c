@@ -19,7 +19,9 @@ mesh_t mesh =
 	.num_faces = 0,
 	.faces = NULL,
 	.num_vertices = 0,
-	.rotation = { .x = 0, .y = 0, .z = 0 },
+	.rotation = {.x = 0, .y = 0, .z = 0 },
+	.scale = {.x = 1, .y = 1, .z = 1 },
+	.translation = {.x = 0, .y = 0, .z = 0 }
 };
 
 mesh_t* meshes[MAX_NUM_MESHES];
@@ -164,6 +166,9 @@ static mesh_t* init_mesh()
 	mesh->rotation.x = 0;
 	mesh->rotation.y = 0;
 	mesh->rotation.z = 0;
+	mesh->scale.x = 1;
+	mesh->scale.y = 1;
+	mesh->scale.z = 1;
 
 	return mesh;
 }

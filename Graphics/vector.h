@@ -13,8 +13,7 @@ typedef enum Axis
 //=========================================================
 typedef struct
 {
-	float x;
-	float y;
+	float x, y;
 
 } vec2_t;
 
@@ -27,20 +26,17 @@ typedef struct
 
 typedef struct
 {
-	float x;
-	float y;
-	float z;
+	float x, y, z;
 
 } vec3_t;
 
-//=========================================================
-// DIAGNOSTICS
-//=========================================================
-void print_vertices(vec3_t* points, int num_points);
-void print_vertex(vec3_t point);
+typedef struct
+{
+	float x, y, z, w;
+} vec4_t;
 
 //=========================================================
-// VECTOR 2D
+// VECTOR 2 FUNCTIONS
 //=========================================================
 vec2_t project_2d(vec3_t vector, int FOV);
 float vec2_length(vec2_t v);
@@ -52,7 +48,7 @@ float vec2_dot(vec2_t a, vec2_t b);
 void vec2_normalize(vec2_t *v);
 
 //=========================================================
-// VECTOR 3D
+// VECTOR 3 FUNCTIONS
 //=========================================================
 
 /// <summary>
@@ -162,3 +158,10 @@ vec3_t vec3_cross(vec3_t a, vec3_t b);
 /// </remark>
 /// <returns></returns>
 float vec3_dot(vec3_t a, vec3_t b);
+
+//=========================================================
+// VECTOR CONVERSION FUNCTIONS
+//=========================================================
+
+vec3_t vec3_from_vec4(vec4_t vector);
+vec4_t vec4_from_vec3(vec3_t vector);

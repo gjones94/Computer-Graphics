@@ -2,6 +2,7 @@
 #include "graphics.h"
 #include "colors.h"
 #include "vector.h"
+#include "matrix.h"
 #include "mesh.h"
 #include "array.h"
 
@@ -16,6 +17,7 @@ uint32_t* buffer = NULL;
 vec3_t camera_position; 
 triangle_t* triangles_to_render;
 float const angle_increment = 0.005f;
+float const scale_increment = 0.002f;
 int originX = 0;
 int originY = 0;
 float rotation = 0.0f;
@@ -60,12 +62,16 @@ bool init_graphics()
 void update()
 {
 	triangles_to_render = NULL;
-	rotation += angle_increment;
 	for (int i = 0; i < num_meshes; i++)
 	{
-		meshes[i]->rotation.x = rotation;
-		meshes[i]->rotation.y = rotation;
-		meshes[i]->rotation.z = rotation;
+		meshes[i]->rotation.x += angle_increment;
+		meshes[i]->scale.x += scale_increment;
+
+		meshes[i]->rotation.y += angle_increment;
+		meshes[i]->scale.y += scale_increment;
+
+		meshes[i]->rotation.z += angle_increment;
+		meshes[i]->scale.z += scale_increment;
 	}
 
 	for (int m = 0; m < num_meshes; m++)
@@ -89,17 +95,23 @@ void update()
 			triangle_t projected_triangle;
 			vec3_t transformed_vertices[3];
 
+			mat4_t scale_matrix = m_scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
+
 			// Change World Position
 			for (int j = 0; j < 3; j++)
 			{
-				vec3_t transformed_vertex;
+				vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+				transformed_vertex = m_transform(transformed_vertex, scale_matrix);
+				
+				/*
 				transformed_vertex = rotate(face_vertices[j], mesh->rotation.x, X_AXIS);
 				transformed_vertex = rotate(transformed_vertex, mesh->rotation.y, Y_AXIS);
 				transformed_vertex = rotate(transformed_vertex, mesh->rotation.z, Z_AXIS);
+				*/
 
 				// Move point away from camera
 				transformed_vertex.z += 5; // move point away from origin
-				transformed_vertices[j] = transformed_vertex;
+				transformed_vertices[j] = vec3_from_vec4(transformed_vertex);
 			}
 
 			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;

@@ -2,21 +2,6 @@
 #include <stdio.h>
 #include "vector.h"
 
-void print_vertices(vec3_t* points, int num_points)
-{
-	for (int i = 0; i < num_points; i++)
-	{
-		print_vertex(points[i]);
-	}
-}
-
-void print_vertex(vec3_t point)
-{
-	printf("\n");
-	printf("X: %f\tY: %f\tZ: %f\n", point.x, point.y, point.z);
-	printf("\n");
-}
-
 float vec2_length(vec2_t v)
 {
 	return sqrtf(powf(v.x, 2) + powf(v.y, 2));
@@ -190,4 +175,16 @@ void vec3_normalize(vec3_t *v)
 	v->x /= (length);
 	v->y /= (length);
 	v->z /= (length);
+}
+
+vec3_t vec3_from_vec4(vec4_t vector)
+{
+	vec3_t v = { .x = vector.x, .y = vector.y, .z = vector.z };
+	return v;
+}
+
+vec4_t vec4_from_vec3(vec3_t vector)
+{
+	vec4_t v = { .x = vector.x, .y = vector.y, .z = vector.z, .w = 1 };
+	return v;
 }
