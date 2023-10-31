@@ -40,12 +40,6 @@ extern bool fill_enabled;
 bool init_graphics();
 
 /// <summary>
-/// Add mesh to be displayed
-/// </summary>
-/// <param name="mesh"></param>
-void add_mesh(mesh_t* mesh_to_add);
-
-/// <summary>
 /// Draw grid on window
 /// </summary>
 void draw_grid(unsigned int spacing, uint32_t grid_color);

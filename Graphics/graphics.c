@@ -285,7 +285,6 @@ normal2_t get_normal_vector_from_surface(vec3_t normal, vec3_t* face_vertices, i
 	normal2_t projected_normal_from_surface = { .start_point = projected_face_center, .end_point = projected_normal };
 
 	return projected_normal_from_surface;
-		
 }
 
 bool cull_backface(vec3_t a, vec3_t b, vec3_t c)
