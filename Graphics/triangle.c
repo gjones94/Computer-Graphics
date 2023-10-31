@@ -9,8 +9,8 @@
 
 //============================================================================
 static void sort_triangle_vertices(vec2_t* vertices);
-static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color);
-static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color);
+static void fill_flat_top_triangle(int x1, int y1, int mx, int my, int x2, int y2, uint32_t color);
+static void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int mx, int my, uint32_t color);
 static void swap(vec2_t* v1, vec2_t* v2);
 //============================================================================
 
@@ -46,18 +46,31 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 	//sort by y coordinate so that v1 is the middle height
 	sort_triangle_vertices(triangle.points);
 
-	vec2_t v0 = triangle.points[0];
-	vec2_t v1 = triangle.points[1];
-	vec2_t v2 = triangle.points[2];
-	vec2_t m;
+	int x0 = (int) triangle.points[0].x;
+	int y0 = (int) triangle.points[0].y;
+	int x1 = (int) triangle.points[1].x;
+	int y1 = (int) triangle.points[1].y;
+	int x2 = (int) triangle.points[2].x;
+	int y2 = (int) triangle.points[2].y;
 
-	m.y = v1.y;
+	int my = y1; //same as midpoint since y1 is the middle height
 
 	//solve for mx using similar triangles (mx-x0 / x2 - x0) = ( y1-y0 / y2-y0 )
-	m.x = ( ((v2.x - v0.x) * (v1.y - v0.y)) / (v2.y - v0.y) ) + v0.x;
+	int mx = (int) (((x2 - x0) * (y1 - y0)) / (y2 - y0)) + x0;
 
-	fill_flat_bottom_triangle(v0, v1, m, color);
-	fill_flat_top_triangle(v1, m, v2, color);
+	if (y1 - y0 == 0)
+	{
+		fill_flat_top_triangle(x1, y1, mx, my, x2, y2, color);
+	}
+	else if (y2 - y1 == 0)
+	{
+		fill_flat_bottom_triangle(x0, y0, x1, y1, mx, my, color);
+	}
+	else 
+	{
+		fill_flat_top_triangle(x1, y1, mx, my, x2, y2, color);
+		fill_flat_bottom_triangle(x0, y0, x1, y1, mx, my, color);
+	}
 }
 
 
@@ -102,7 +115,7 @@ static void sort_triangle_vertices(vec2_t *vertices)
 /// <param name="v0"></param>
 /// <param name="v1"></param>
 /// <param name="m"> => m.y = v1.y, (solve for m.x)</param>
-static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color)
+static void fill_flat_bottom_triangle(int x0, int y0, int x1, int y1, int mx, int my, uint32_t color)
 {
 	//======================================
 	//
@@ -118,16 +131,13 @@ static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t c
 	//
 	//======================================
 
-	int y0 = (int) v0.y;
-	int y1 = (int) v1.y;
+	float changeInY = (float) y1 - y0;
 
-	float changeInY = v1.y - v0.y;
+	float slope1_increment = (x1 - x0) / (float) changeInY;
+	float slope2_increment = (mx - x0) / (float) changeInY;
 
-	float slope1_increment = (float)(v1.x - v0.x) / changeInY;
-	float slope2_increment = (float)(m.x - v0.x) / changeInY;
-
-	float start_x = v0.x;
-	float end_x = v0.x;
+	float start_x = (float) x0;
+	float end_x = (float) x0;
 
 	for (int y = y0; y <= y1; y++)
 	{
@@ -144,22 +154,19 @@ static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t c
 /// <param name="v1"></param>
 /// <param name="m"> => m.y = v1.y, (solve for m.x)</param>
 /// <param name="v2"></param>
-static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color)
+static void fill_flat_top_triangle(int x1, int y1, int mx, int my, int x2, int y2, uint32_t color)
 {
-	int y1 = (int)v1.y;
-	int y2 = (int)v2.y;
+	float changeInY = (float) y2 - y1;
 
-	float changeInY = v2.y - v1.y;
+	float slope1_increment = (float) (x1 - x2) / changeInY;
+	float slope2_increment = (float) (mx - x2) / changeInY;
 
-	float slope1_increment = (float)(v1.x - v2.x) / changeInY;
-	float slope2_increment = (float)(m.x - v2.x) / changeInY;
+	float start_x = (float) x2;
+	float end_x = (float) x2;
 
-	float start_x = v2.x;
-	float end_x = v2.x;
-
-	for (int y = y2; y >= v1.y; y--)
+	for (int y = y2; y >= y1; y--)
 	{
-		draw_line((int)start_x, y, (int)end_x, y, color);
+		draw_line((int) start_x, y, (int) end_x, y, color);
 		start_x += slope1_increment; //calculate new startX
 		end_x += slope2_increment; //calculate new endX
 	}
