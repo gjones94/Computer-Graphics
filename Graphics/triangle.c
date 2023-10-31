@@ -4,13 +4,14 @@
 
 
 //============================================================================
-
+//
 //	PRIVATE PROTOTYPES
-
+//
 //============================================================================
 static void sort_triangle_vertices(vec2_t* vertices);
 static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color);
 static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color);
+static vec2_t get_opposite_midpoint(triangle_t triangle);
 static void swap(vec2_t* v1, vec2_t* v2);
 //============================================================================
 
@@ -30,7 +31,7 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 	//				   /| \
 	//				  /	|  \
 	//				 /  |   \
-	//	  (x1,y1)  ========= (mX, mY) (CUT IN HALF)
+	//	  (x1,y1)  ========= (mX, mY) (CUT IN HALF, must solve for midpoint m.x)
 	//				 \  |    \
 	//				   \|	  \
 	//				 	|\	   \
@@ -51,10 +52,9 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 	vec2_t v2 = triangle.points[2];
 	vec2_t m;
 
-	m.y = v1.y;
-
 	//solve for mx using similar triangles (mx-x0 / x2 - x0) = ( y1-y0 / y2-y0 )
-	m.x = ( ((v2.x - v0.x) * (v1.y - v0.y)) / (v2.y - v0.y) ) + v0.x;
+	m = get_opposite_midpoint(triangle);
+
 
 	fill_flat_bottom_triangle(v0, v1, m, color);
 	fill_flat_top_triangle(v1, m, v2, color);
@@ -121,10 +121,18 @@ static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t c
 	int y0 = (int) v0.y;
 	int y1 = (int) v1.y;
 
-	float changeInY = v1.y - v0.y;
+	// If the change was less than 1, division caused asymptotic large numbers
+	// so we need to keep the result as a whole number
+	int changeInY = y1 - y0;
 
-	float slope1_increment = (float)(v1.x - v0.x) / changeInY;
-	float slope2_increment = (float)(m.x - v0.x) / changeInY;
+	if (changeInY == 0) 
+	{
+		// There is no top triangle, midpoint and top point are at same height
+		return;
+	}
+
+	float slope1_increment = (v1.x - v0.x) / (float) changeInY;
+	float slope2_increment = (m.x - v0.x) / (float) changeInY;
 
 	float start_x = v0.x;
 	float end_x = v0.x;
@@ -146,13 +154,21 @@ static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t c
 /// <param name="v2"></param>
 static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color)
 {
-	int y1 = (int)v1.y;
-	int y2 = (int)v2.y;
+	int y1 = (int) v1.y;
+	int y2 = (int) v2.y;
 
-	float changeInY = v2.y - v1.y;
+	// If the change was less than 1, division caused asymptotic large numbers
+	// so we need to keep the result as a whole number
+	int changeInY = y2 - y1;
 
-	float slope1_increment = (float)(v1.x - v2.x) / changeInY;
-	float slope2_increment = (float)(m.x - v2.x) / changeInY;
+	if (changeInY == 0)
+	{
+		// There is no bottom triangle, midpoint and bottom point are at same height
+		return;
+	}
+
+	float slope1_increment = (v1.x - v2.x) / (float) changeInY;
+	float slope2_increment = (m.x - v2.x) / (float) changeInY;
 
 	float start_x = v2.x;
 	float end_x = v2.x;
@@ -160,9 +176,48 @@ static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t colo
 	for (int y = y2; y >= v1.y; y--)
 	{
 		draw_line((int)start_x, y, (int)end_x, y, color);
-		start_x += slope1_increment; //calculate new startX
-		end_x += slope2_increment; //calculate new endX
+		start_x += slope1_increment;
+		end_x += slope2_increment; 
 	}
+}
+static vec2_t get_opposite_midpoint(triangle_t triangle)
+{
+	vec2_t midpoint;
+
+	float x0 = triangle.points[0].x;
+	float y0 = triangle.points[0].y;
+	float x1 = triangle.points[1].x;
+	float y1 = triangle.points[1].y;
+	float x2 = triangle.points[2].x;
+	float y2 = triangle.points[2].y;
+
+	//==================================================================================
+	//
+	//	 			(x0, y0)
+	//					/\
+	//				   /| \
+	//				  /	|  \
+	//				 /  |   \
+	//	  (x1,y1)  ========= (mX, mY)
+	//				 \  |    \
+	//				   \|	  \
+	//				 	|\	   \
+	//				 	|  \    \
+	//				    |	 \   \
+	//			     	|	  \   \
+	//			     	|	    \  \
+	//			     	|	      \ \
+	//				 	|____________(x2, y2)
+	// 
+	//==================================================================================
+
+	midpoint.y = triangle.points[1].y; // the triangle points were sorted so that y1 is in the middle of y0 and y2
+	/*
+		Solve for mx using similar triangles (mx-x0 / x2 - x0) = ( y1-y0 / y2-y0 )
+	*/
+	midpoint.x = (((x2 - x0) * (y1 - y0)) / (y2 - y0)) + x0;
+
+	return midpoint;
 }
 
 static void swap(vec2_t *v1, vec2_t *v2)
