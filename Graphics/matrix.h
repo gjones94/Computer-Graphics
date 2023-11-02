@@ -31,6 +31,14 @@ mat4_t get_scale_matrix(float sx, float sy, float sz);
 /// <param name="tz: Amount to translate Z"></param>
 mat4_t get_translation_matrix(float tx, float ty, float tz);
 
+/// <summary>
+/// Get Rotation Matrix
+/// </summary>
+/// <param name="rx: Amount to rotate X"></param>
+/// <param name="ry: Amount to rotate Y"></param>
+/// <param name="rz: Amount to rotate Z"></param>
+mat4_t get_rotation_matrix(float rx, float ry, float rz);
+
 
 /// <summary>
 /// Transforms vector by mutiplying against matrix

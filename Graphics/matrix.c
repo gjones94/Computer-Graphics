@@ -43,6 +43,21 @@ mat4_t get_translation_matrix(float tx, float ty, float tz)
 	return matrix;
 }
 
+mat4_t get_rotation_matrix(float angle, Axis axis)
+{
+	mat4_t matrix = get_identity_matrix();
+
+	/*					X ROTATION				*/
+	/*	======================================	*/
+	/*	[	cos(angle),	-sin(angle),	0,	0]	*/
+	/*	[	sin(angle),	cos(angle),		0,	0]	*/
+	/*	[		0,			0,			0,	0]	*/
+	/*	[		0,			0,			0,	0]	*/
+	/*	======================================	*/
+
+	return matrix;
+}
+
 vec4_t m_transform(vec4_t vector, mat4_t matrix)
 {
 	vec4_t result;
