@@ -18,6 +18,7 @@ vec3_t camera_position;
 triangle_t* triangles_to_render;
 float const angle_increment = 0.005f;
 float const scale_increment = 0.002f;
+float const translation_increment = 0.001f;
 int originX = 0;
 int originY = 0;
 float rotation = 0.0f;
@@ -73,7 +74,7 @@ void update()
 		//meshes[i]->scale.y += scale_increment;
 		//meshes[i]->scale.z += scale_increment;
 
-		meshes[i]->translation.x += 0.05f;
+		meshes[i]->translation.x += translation_increment;
 		
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
