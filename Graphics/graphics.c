@@ -95,7 +95,7 @@ void update()
 			triangle_t projected_triangle;
 			vec3_t transformed_vertices[3];
 
-			mat4_t scale_matrix = m_scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
+			mat4_t scale_matrix = get_scale_matrix(mesh->scale.x, mesh->scale.y, mesh->scale.z);
 
 			// Change World Position
 			for (int j = 0; j < 3; j++)
@@ -103,12 +103,6 @@ void update()
 				vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 				transformed_vertex = m_transform(transformed_vertex, scale_matrix);
 				
-				/*
-				transformed_vertex = rotate(face_vertices[j], mesh->rotation.x, X_AXIS);
-				transformed_vertex = rotate(transformed_vertex, mesh->rotation.y, Y_AXIS);
-				transformed_vertex = rotate(transformed_vertex, mesh->rotation.z, Z_AXIS);
-				*/
-
 				// Move point away from camera
 				transformed_vertex.z += 5; // move point away from origin
 				transformed_vertices[j] = vec3_from_vec4(transformed_vertex);

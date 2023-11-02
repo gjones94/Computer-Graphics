@@ -6,27 +6,39 @@ mat4_t m_identity(void)
 	mat4_t matrix = {
 		.m = {
 			{ 1, 0, 0, 0 },
-			{ 1, 0, 0, 0 },
-			{ 1, 0, 0, 0 },
-			{ 1, 0, 0, 0 }
+			{ 0, 1, 0, 0 },
+			{ 0, 0, 1, 0 },
+			{ 0, 0, 0, 1 }
 		}
 	};
 
 	return matrix;
 }
 
-mat4_t m_scale(float sx, float sy, float sz)
+mat4_t get_scale_matrix(float sx, float sy, float sz)
 {
 	mat4_t matrix = {
 		.m = {
-			{sx, 0, 0, 0},
-			{0, sy, 0, 0},
-			{0, 0, sz, 0},
-			{0, 0, 0,  1},
+			{ sx, 0,  0,  0 },
+			{ 0,  sy, 0,  0 },
+			{ 0,  0,  sz, 0 },
+			{ 0,  0,  0,  1 },
 		}
 	};
 
 	return matrix;
+}
+
+mat4_t get_translation_matrix(float tx, float ty, float tz)
+{
+	mat4_t matrix = {
+		.m = {
+			{ 1,  0,  0,  0 },
+			{ 0,  1,  0,  0 },
+			{ 0,  0,  1,  0 },
+		    { tx, ty, tz, 1 },
+		}
+	};
 }
 
 vec4_t m_transform(vec4_t vector, mat4_t matrix)

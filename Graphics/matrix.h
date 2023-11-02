@@ -21,7 +21,15 @@ mat4_t m_identity(void);
 /// <param name="sy: Amount to scale Y"></param>
 /// <param name="sz: Amount to scale Z"></param>
 /// <returns></returns>
-mat4_t m_scale(float sx, float sy, float sz);
+mat4_t get_scale_matrix(float sx, float sy, float sz);
+
+/// <summary>
+/// Get Translation Matrix
+/// </summary>
+/// <param name="tx: Amount to translate X"></param>
+/// <param name="ty: Amount to translate Y"></param>
+/// <param name="tz: Amount to translate Z"></param>
+mat4_t get_translation_matrix(float tx, float ty, float tz);
 
 
 /// <summary>
