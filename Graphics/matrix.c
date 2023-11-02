@@ -36,7 +36,7 @@ mat4_t get_translation_matrix(float tx, float ty, float tz)
 			{ 1,  0,  0,  0 },
 			{ 0,  1,  0,  0 },
 			{ 0,  0,  1,  0 },
-		    { tx, ty, tz, 1 },
+			{ tx, ty, tz, 1 },
 		}
 	};
 }
