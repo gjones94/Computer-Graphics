@@ -48,12 +48,12 @@ mat4_t get_rotation_matrix(float angle, Axis axis)
 	mat4_t matrix = get_identity_matrix();
 
 	/*			X ROTATION			*/
-	/*	===========================================	*/
+	/*	======================================	*/
 	/*	[cos(angle),	-sin(angle),	0,	0]	*/
-	/*	[sin(angle),	cos(angle),	0,	0]	*/
+	/*	[sin(angle),	 cos(angle),	0,	0]	*/
 	/*	[0,		0,		0,	0]	*/
 	/*	[0,		0,		0,	0]	*/
-	/*	===========================================	*/
+	/*	======================================	*/
 
 	return matrix;
 }
