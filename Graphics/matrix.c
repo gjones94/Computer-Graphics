@@ -51,10 +51,10 @@ vec4_t m_transform(vec4_t vector, mat4_t matrix)
 		Vector = 4 * 1	
 		Thus, to multiply, it must be Matrix * Vector
 
-		| 1 0 0 TX |		| X	|		| X*1 + Y*0 + Z*0 + TX*1 |
-		| 0 1 0 TY |   *	| Y	|	=	| X*0 + Y*1 + Z*0 + TY*1 |
-		| 0 0 1 TZ |		| Z	|		| X*0 + Y*0 + Z*1 + TZ*1 |
-		| 0 0 0 1  |		| 1	|		| X*0 + Y*0 + Z*0 + 1*1	 |
+		| 1 0 0 TX |		| X	|		| X*1 + Y*0 + Z*0 + TX*1 |	X + TX
+		| 0 1 0 TY |   *	| Y	|	=	| X*0 + Y*1 + Z*0 + TY*1 |	Y + TY
+		| 0 0 1 TZ |		| Z	|		| X*0 + Y*0 + Z*1 + TZ*1 |	Z + TZ
+		| 0 0 0 1  |		| 1	|		| X*0 + Y*0 + Z*0 + 1*1	 |	  1
 
 	*/
 	result.x = (matrix.m[0][0] * vector.x) + (matrix.m[0][1] * vector.y) + (matrix.m[0][2] * vector.z) + (matrix.m[0][3] * vector.z);
