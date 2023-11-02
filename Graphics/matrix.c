@@ -1,3 +1,4 @@
+#include <math.h>
 #include "matrix.h"
 #include "vector.h"
 
@@ -55,6 +56,32 @@ mat4_t get_rotation_matrix(float angle, Axis axis)
 		====================================================
 	*/
 
+	switch (axis)
+	{
+		case Z_AXIS:
+			matrix.m[0][0] = cosf(angle);
+			matrix.m[0][1] = -sinf(angle);
+			matrix.m[1][0] = sinf(angle);
+			matrix.m[1][1] = cosf(angle);
+			// LOCK Z
+			break;
+		case X_AXIS:
+			// LOCK X
+			matrix.m[1][1] = cosf(angle);
+			matrix.m[1][2] = -sinf(angle);
+			matrix.m[2][1] = sinf(angle);
+			matrix.m[2][2] = cosf(angle);
+			break;
+		case Y_AXIS:
+			matrix.m[0][0] = cosf(angle);
+			matrix.m[0][2] = -sinf(angle);
+			// LOCK Y
+			matrix.m[2][0] = sinf(angle);
+			matrix.m[2][2] = cosf(angle);
+			break;
+
+	}
+
 	return matrix;
 }
 
@@ -84,10 +111,10 @@ vec4_t m_transform(vec4_t vector, mat4_t matrix)
 		==============================================================================================================================
 
 	*/
-	result.x = (matrix.m[0][0] * vector.x) + (matrix.m[0][1] * vector.y) + (matrix.m[0][2] * vector.z) + (matrix.m[0][3] * vector.z);
-	result.y = (matrix.m[1][0] * vector.x) + (matrix.m[1][1] * vector.y) + (matrix.m[1][2] * vector.z) + (matrix.m[1][3] * vector.z);
-	result.z = (matrix.m[2][0] * vector.x) + (matrix.m[2][1] * vector.y) + (matrix.m[2][2] * vector.z) + (matrix.m[2][3] * vector.z);
-	result.w = (matrix.m[3][0] * vector.x) + (matrix.m[3][1] * vector.y) + (matrix.m[3][2] * vector.z) + (matrix.m[3][3] * vector.z);
+	result.x = (matrix.m[0][0] * vector.x) + (matrix.m[0][1] * vector.y) + (matrix.m[0][2] * vector.z) + (matrix.m[0][3] * vector.w);
+	result.y = (matrix.m[1][0] * vector.x) + (matrix.m[1][1] * vector.y) + (matrix.m[1][2] * vector.z) + (matrix.m[1][3] * vector.w);
+	result.z = (matrix.m[2][0] * vector.x) + (matrix.m[2][1] * vector.y) + (matrix.m[2][2] * vector.z) + (matrix.m[2][3] * vector.w);
+	result.w = (matrix.m[3][0] * vector.x) + (matrix.m[3][1] * vector.y) + (matrix.m[3][2] * vector.z) + (matrix.m[3][3] * vector.w);
 
-	return vector;
+	return result;
 }

@@ -68,13 +68,13 @@ void update()
 	{
 		//meshes[i]->rotation.x += angle_increment;
 		//meshes[i]->rotation.y += angle_increment;
-		//meshes[i]->rotation.z += angle_increment;
+		meshes[i]->rotation.z += angle_increment;
 
 		//meshes[i]->scale.x += scale_increment;
 		//meshes[i]->scale.y += scale_increment;
 		//meshes[i]->scale.z += scale_increment;
 
-		meshes[i]->translation.x += translation_increment;
+		//meshes[i]->translation.x += 0;
 		
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
@@ -101,17 +101,32 @@ void update()
 			triangle_t projected_triangle;
 			vec3_t transformed_vertices[3];
 
-			mat4_t scale_matrix = get_scale_matrix(mesh->scale.x, mesh->scale.y, mesh->scale.z);
+			//mat4_t scale_matrix = get_scale_matrix(mesh->scale.x, mesh->scale.y, mesh->scale.z);
+
+			mat4_t rotation_matrix_x = get_rotation_matrix(mesh->rotation.x, X_AXIS);
+			mat4_t rotation_matrix_y = get_rotation_matrix(mesh->rotation.y, Y_AXIS);
+			mat4_t rotation_matrix_z = get_rotation_matrix(mesh->rotation.z, Z_AXIS);
+
 			mat4_t translation_matrix = get_translation_matrix(mesh->translation.x, mesh->translation.y, mesh->translation.z);
 
 			// Change World Position
 			for (int j = 0; j < 3; j++)
 			{
+
 				vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
+
+				transformed_vertex = m_transform(transformed_vertex, rotation_matrix_x);
+				transformed_vertex = m_transform(transformed_vertex, rotation_matrix_y);
+				transformed_vertex = m_transform(transformed_vertex, rotation_matrix_z);
 
 				transformed_vertex = m_transform(transformed_vertex, translation_matrix);
 
 				transformed_vertices[j] = vec3_from_vec4(transformed_vertex);
+
+				//vec3_t vector = face_vertices[j];
+				//vector = rotate(vector, mesh->rotation.z, Z_AXIS);
+				//transformed_vertices[j] = vector;
+				//transformed_vertices[j].z += 5;
 			}
 
 			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
@@ -126,7 +141,6 @@ void update()
 			{
 				continue;
 			}
-
 
 			// Project and translate to screen coordinates
 			for (int j = 0; j < 3; j++)

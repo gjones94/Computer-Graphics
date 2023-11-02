@@ -37,7 +37,7 @@ mat4_t get_translation_matrix(float tx, float ty, float tz);
 /// <param name="rx: Amount to rotate X"></param>
 /// <param name="ry: Amount to rotate Y"></param>
 /// <param name="rz: Amount to rotate Z"></param>
-mat4_t get_rotation_matrix(float rx, float ry, float rz);
+mat4_t get_rotation_matrix(float angle, Axis axis);
 
 
 /// <summary>
