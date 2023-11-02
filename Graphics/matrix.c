@@ -49,8 +49,14 @@ vec4_t m_transform(vec4_t vector, mat4_t matrix)
 	/*
 		Matrix = 4 * 4
 		Vector = 4 * 1	
-		Thus, to multiply, it must be Matrix * Vector
+		Matrix Multiplication
+		MXN * N*P (Leftside # Columns matches Rightside # Rows, result = M * P)
+		MXN * P*M (NO, Leftside # Columns != Rightside # Rows)
 
+		Must multiply with matrix on left, vector on right
+
+			Matrix			Vector				Calculation			Result
+		===================================================================
 		| 1 0 0 TX |		| X	|		| X*1 + Y*0 + Z*0 + TX*1 |	X + TX
 		| 0 1 0 TY |   *	| Y	|	=	| X*0 + Y*1 + Z*0 + TY*1 |	Y + TY
 		| 0 0 1 TZ |		| Z	|		| X*0 + Y*0 + Z*1 + TZ*1 |	Z + TZ
