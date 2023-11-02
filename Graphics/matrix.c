@@ -57,7 +57,7 @@ vec4_t m_transform(vec4_t vector, mat4_t matrix)
 		MXN * P*M (NO, Leftside # Columns != Rightside # Rows)
 
 
-		Must multiply with matrix on left, vector on right
+		Must multiply with matrix on the left side, and the vector on the right
 		-------------------------------------------------------------------------------------------
 
 		Matrix					Vector					Calculation			Result
