@@ -62,16 +62,21 @@ bool init_graphics()
 void update()
 {
 	triangles_to_render = NULL;
+
 	for (int i = 0; i < num_meshes; i++)
 	{
-		meshes[i]->rotation.x += angle_increment;
-		meshes[i]->scale.x += scale_increment;
+		//meshes[i]->rotation.x += angle_increment;
+		//meshes[i]->rotation.y += angle_increment;
+		//meshes[i]->rotation.z += angle_increment;
 
-		meshes[i]->rotation.y += angle_increment;
-		meshes[i]->scale.y += scale_increment;
+		//meshes[i]->scale.x += scale_increment;
+		//meshes[i]->scale.y += scale_increment;
+		//meshes[i]->scale.z += scale_increment;
 
-		meshes[i]->rotation.z += angle_increment;
-		meshes[i]->scale.z += scale_increment;
+		meshes[i]->translation.x += 0.05f;
+		
+		//Move mesh away from origin to be in view
+		meshes[i]->translation.z = 5;
 	}
 
 	for (int m = 0; m < num_meshes; m++)
@@ -96,15 +101,15 @@ void update()
 			vec3_t transformed_vertices[3];
 
 			mat4_t scale_matrix = get_scale_matrix(mesh->scale.x, mesh->scale.y, mesh->scale.z);
+			mat4_t translation_matrix = get_translation_matrix(mesh->translation.x, mesh->translation.y, mesh->translation.z);
 
 			// Change World Position
 			for (int j = 0; j < 3; j++)
 			{
 				vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
-				transformed_vertex = m_transform(transformed_vertex, scale_matrix);
-				
-				// Move point away from camera
-				transformed_vertex.z += 5; // move point away from origin
+
+				transformed_vertex = m_transform(transformed_vertex, translation_matrix);
+
 				transformed_vertices[j] = vec3_from_vec4(transformed_vertex);
 			}
 

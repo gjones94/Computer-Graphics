@@ -33,10 +33,10 @@ mat4_t get_translation_matrix(float tx, float ty, float tz)
 {
 	mat4_t matrix = {
 		.m = {
-			{ 1,  0,  0,  0 },
-			{ 0,  1,  0,  0 },
-			{ 0,  0,  1,  0 },
-			{ tx, ty, tz, 1 },
+			{ 1,  0,  0,  tx },
+			{ 0,  1,  0,  ty },
+			{ 0,  0,  1,  tz },
+			{ 0,  0,  0,  1 },
 		}
 	};
 

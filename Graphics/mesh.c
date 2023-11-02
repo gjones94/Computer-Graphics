@@ -13,17 +13,6 @@
 	static mesh_t* init_mesh();
 //========================================================
 
-mesh_t mesh =
-{
-	.vertices = NULL,
-	.num_faces = 0,
-	.faces = NULL,
-	.num_vertices = 0,
-	.rotation = {.x = 0, .y = 0, .z = 0 },
-	.scale = {.x = 1, .y = 1, .z = 1 },
-	.translation = {.x = 0, .y = 0, .z = 0 }
-};
-
 mesh_t* meshes[MAX_NUM_MESHES];
 int num_meshes;
 
@@ -169,6 +158,9 @@ static mesh_t* init_mesh()
 	mesh->scale.x = 1;
 	mesh->scale.y = 1;
 	mesh->scale.z = 1;
+	mesh->translation.x = 0;
+	mesh->translation.y = 0;
+	mesh->translation.z = 0;
 
 	return mesh;
 }
