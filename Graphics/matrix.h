@@ -12,7 +12,7 @@ typedef struct
 /// </summary>
 /// <param name=""></param>
 /// <returns></returns>
-mat4_t m_identity(void);
+mat4_t get_identity_matrix(void);
 
 /// <summary>
 /// Get Scale Matrix

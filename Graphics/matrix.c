@@ -1,7 +1,7 @@
 #include "matrix.h"
 #include "vector.h"
 
-mat4_t m_identity(void)
+mat4_t get_identity_matrix(void)
 {
 	mat4_t matrix = {
 		.m = {
@@ -39,6 +39,8 @@ mat4_t get_translation_matrix(float tx, float ty, float tz)
 			{ tx, ty, tz, 1 },
 		}
 	};
+
+	return matrix;
 }
 
 vec4_t m_transform(vec4_t vector, mat4_t matrix)
