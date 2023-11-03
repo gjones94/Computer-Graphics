@@ -64,83 +64,86 @@ void update()
 {
 	triangles_to_render = NULL;
 
+	// Set Next Movements for Mesh
 	for (int i = 0; i < num_meshes; i++)
 	{
-		//meshes[i]->rotation.x += angle_increment;
-		//meshes[i]->rotation.y += angle_increment;
-		meshes[i]->rotation.z += angle_increment;
-
 		//meshes[i]->scale.x += scale_increment;
 		//meshes[i]->scale.y += scale_increment;
 		//meshes[i]->scale.z += scale_increment;
 
-		//meshes[i]->translation.x += 0;
-		
+		meshes[i]->rotation.x += angle_increment;
+		meshes[i]->rotation.y += angle_increment;
+		meshes[i]->rotation.z += angle_increment;
+
+		meshes[i]->translation.x += .002f;
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
 	}
 
+	// Apply movements for mesh using matrices
 	for (int m = 0; m < num_meshes; m++)
 	{
 		mesh_t* mesh = meshes[m];
 		int num_faces = mesh->num_faces;
 
+		// Loop through all faces of mesh
 		for (int i = 0; i < num_faces; i++)
 		{
+			// Get mesh face
 			face_t mesh_face = mesh->faces[i];
 
-			// Get each vertex for face
+			// Get vertices of face
 			vec3_t face_vertices[3];
-
-			// face stores vertex index in vertices array
-			// vertex index references start with 1 instead of 0, need to get to zero-based index by subtracting 1
 			face_vertices[0] = mesh->vertices[mesh_face.a - 1];
 			face_vertices[1] = mesh->vertices[mesh_face.b - 1];
 			face_vertices[2] = mesh->vertices[mesh_face.c - 1];
 
-			triangle_t projected_triangle;
-			vec3_t transformed_vertices[3];
+			// Get scale matrix
+			mat4_t scale_matrix = get_scale_matrix(mesh->scale.x, mesh->scale.y, mesh->scale.z);
 
-			//mat4_t scale_matrix = get_scale_matrix(mesh->scale.x, mesh->scale.y, mesh->scale.z);
-
+			// Get rotation matrix
 			mat4_t rotation_matrix_x = get_rotation_matrix(mesh->rotation.x, X_AXIS);
 			mat4_t rotation_matrix_y = get_rotation_matrix(mesh->rotation.y, Y_AXIS);
 			mat4_t rotation_matrix_z = get_rotation_matrix(mesh->rotation.z, Z_AXIS);
 
+			// Get translation matrix
 			mat4_t translation_matrix = get_translation_matrix(mesh->translation.x, mesh->translation.y, mesh->translation.z);
 
-			// Change World Position
+			// Combine matrices into world matrix
+			mat4_t world_matrix = get_identity_matrix();
+			world_matrix = get_combined_matrix(scale_matrix, world_matrix);
+			world_matrix = get_combined_matrix(rotation_matrix_x, world_matrix);
+			world_matrix = get_combined_matrix(rotation_matrix_y, world_matrix);
+			world_matrix = get_combined_matrix(rotation_matrix_z, world_matrix);
+			world_matrix = get_combined_matrix(translation_matrix, world_matrix);
+
+			// Store transformed vertices
+			vec3_t transformed_vertices[3];
+
+			// Apply tranformation of vertex using world matrix
 			for (int j = 0; j < 3; j++)
 			{
-
 				vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
-
-				transformed_vertex = m_transform(transformed_vertex, rotation_matrix_x);
-				transformed_vertex = m_transform(transformed_vertex, rotation_matrix_y);
-				transformed_vertex = m_transform(transformed_vertex, rotation_matrix_z);
-
-				transformed_vertex = m_transform(transformed_vertex, translation_matrix);
-
+				transformed_vertex = m_transform(transformed_vertex, world_matrix);
 				transformed_vertices[j] = vec3_from_vec4(transformed_vertex);
-
-				//vec3_t vector = face_vertices[j];
-				//vector = rotate(vector, mesh->rotation.z, Z_AXIS);
-				//transformed_vertices[j] = vector;
-				//transformed_vertices[j].z += 5;
 			}
 
-			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
-
+			// Apply backface culling to triangle
 			vec3_t a = transformed_vertices[0];
 			vec3_t b = transformed_vertices[1];
 			vec3_t c = transformed_vertices[2];
 
 			bool crop_out_surface = cull_backface(a, b, c);
-
 			if (crop_out_surface)
 			{
 				continue;
 			}
+
+			// Get average depth for triangle for sorting render order of triangles
+			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
+
+			// Store projected 2d vertices as triangle
+			triangle_t projected_triangle;
 
 			// Project and translate to screen coordinates
 			for (int j = 0; j < 3; j++)
@@ -162,6 +165,7 @@ void update()
 			projected_triangle.surface_normal = get_normal_vector_from_surface(normal, transformed_vertices, 3);
 
 			projected_triangle.color = mesh_face.color;
+
 			// Add triangle for rendering
 			array_push(triangles_to_render, projected_triangle);
 		}

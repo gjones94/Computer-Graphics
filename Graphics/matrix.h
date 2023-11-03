@@ -39,6 +39,8 @@ mat4_t get_translation_matrix(float tx, float ty, float tz);
 /// <param name="rz: Amount to rotate Z"></param>
 mat4_t get_rotation_matrix(float angle, Axis axis);
 
+mat4_t get_combined_matrix(mat4_t m1, mat4_t m2);
+
 
 /// <summary>
 /// Transforms vector by mutiplying against matrix

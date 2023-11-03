@@ -85,6 +85,29 @@ mat4_t get_rotation_matrix(float angle, Axis axis)
 	return matrix;
 }
 
+mat4_t get_combined_matrix(mat4_t m1, mat4_t m2)
+{
+	int num_rows = 4;
+	int num_columns = 4;
+	mat4_t m_new = get_identity_matrix();
+	for (int i = 0; i < num_rows; i++)
+	{
+		for (int j = 0; j < num_columns; j++)
+		{
+			float new_value = 0.0f;
+			for (int k = 0; k < num_rows; k++)
+			{
+				new_value += (m1.m[i][k] * m2.m[k][j]);
+			}
+
+			m_new.m[i][j] = new_value;
+		}
+	}
+
+	return m_new;
+
+}
+
 vec4_t m_transform(vec4_t vector, mat4_t matrix)
 {
 	vec4_t result;
