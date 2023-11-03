@@ -9,7 +9,6 @@ typedef struct
 	vec2_t points[3];
 	uint32_t color;
 	float avg_depth;
-	normal2_t surface_normal;
 
 } triangle_t;
 

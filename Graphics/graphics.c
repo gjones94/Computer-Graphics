@@ -15,20 +15,26 @@ SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
 
 vec3_t camera_position; 
+mat4_t m_perspective;
+
 triangle_t* triangles_to_render;
 float const angle_increment = 0.005f;
 float const scale_increment = 0.002f;
 float const translation_increment = 0.001f;
+float const zfar = 2.0f;
+float const znear = 0.01f;
+float const fov = (float) M_PI / 3;
+float const aspect_ratio = (float) WINDOW_HEIGHT / (float) WINDOW_WIDTH;
+
+
 int originX = 0;
 int originY = 0;
-float rotation = 0.0f;
 bool running = false;
 int previous_frame_time = 0;
 
 bool backface_culling_enabled = true;
 bool wireframe_enabled = true;
 bool fill_enabled = true;
-bool normal_enabled = false;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -57,6 +63,8 @@ bool init_graphics()
 
 	init_camera();
 
+	m_perspective = get_perspective_matrix(aspect_ratio, fov, znear, zfar);
+
 	return success;
 }
 
@@ -76,6 +84,7 @@ void update()
 		meshes[i]->rotation.z += angle_increment;
 
 		meshes[i]->translation.x += .002f;
+
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
 	}
@@ -118,20 +127,20 @@ void update()
 			world_matrix = get_combined_matrix(translation_matrix, world_matrix);
 
 			// Store transformed vertices
-			vec3_t transformed_vertices[3];
+			vec4_t transformed_vertices[3];
 
 			// Apply tranformation of vertex using world matrix
 			for (int j = 0; j < 3; j++)
 			{
 				vec4_t transformed_vertex = vec4_from_vec3(face_vertices[j]);
 				transformed_vertex = m_transform(transformed_vertex, world_matrix);
-				transformed_vertices[j] = vec3_from_vec4(transformed_vertex);
+				transformed_vertices[j] = transformed_vertex;
 			}
 
 			// Apply backface culling to triangle
-			vec3_t a = transformed_vertices[0];
-			vec3_t b = transformed_vertices[1];
-			vec3_t c = transformed_vertices[2];
+			vec3_t a = vec3_from_vec4(transformed_vertices[0]);
+			vec3_t b = vec3_from_vec4(transformed_vertices[1]);
+			vec3_t c = vec3_from_vec4(transformed_vertices[2]);
 
 			bool crop_out_surface = cull_backface(a, b, c);
 			if (crop_out_surface)
@@ -149,20 +158,21 @@ void update()
 			for (int j = 0; j < 3; j++)
 			{
 				// Project into 2d space
-				vec2_t projected_vertex = project_2d(transformed_vertices[j], FOV);
+				vec4_t projected_vertex = project(m_perspective, transformed_vertices[j]);
+
+				// Scale to Window Size (coordinates are currently normalized to -1 and 1)
+				projected_vertex.x *= (int) WINDOW_WIDTH / 2;
+				projected_vertex.y *= (int) WINDOW_HEIGHT / 2;
 
 				// Translate vertex relative to origin
 				projected_vertex.x += get_origin_x();
 				projected_vertex.y += get_origin_y();
 
 				// Save triangle mesh with projected points
-				projected_triangle.points[j] = projected_vertex;
+				projected_triangle.points[j].x = projected_vertex.x;
+				projected_triangle.points[j].y = projected_vertex.y;
 				projected_triangle.avg_depth = depth;
 			}
-
-			// Store projected surface normal in the triangle to render
-			vec3_t normal = get_normal(a, b, c);
-			projected_triangle.surface_normal = get_normal_vector_from_surface(normal, transformed_vertices, 3);
 
 			projected_triangle.color = mesh_face.color;
 
@@ -188,11 +198,6 @@ void render()
 		if (wireframe_enabled)
 		{
 			draw_triangle(triangles_to_render[i], WHITE);
-		}
-
-		if (normal_enabled)
-		{
-			draw_normal(triangles_to_render[i].surface_normal, RED);
 		}
 	}
 
@@ -298,23 +303,6 @@ void draw_normal(normal2_t surface_normal, uint32_t color)
 	surface_normal.end_point.y += get_origin_y();
 
 	draw_line((int)surface_normal.start_point.x, (int)surface_normal.start_point.y, (int)surface_normal.end_point.x, (int)surface_normal.end_point.y, color);
-}
-
-normal2_t get_normal_vector_from_surface(vec3_t normal, vec3_t* face_vertices, int num_vertices)
-{
-	// Get center of face
-	vec3_t face_center = get_center_vertex(face_vertices, num_vertices);
-
-	// Position normal relative to a vertex (normal is currently relative to origin)
-	normal = vec3_add(face_center, normal);
-
-	// Project normal and vertex points into 2d space
-	vec2_t projected_normal = project_2d(normal, FOV);
-	vec2_t projected_face_center = project_2d(face_center, FOV);
-
-	normal2_t projected_normal_from_surface = { .start_point = projected_face_center, .end_point = projected_normal };
-
-	return projected_normal_from_surface;
 }
 
 bool cull_backface(vec3_t a, vec3_t b, vec3_t c)

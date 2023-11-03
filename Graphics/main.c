@@ -93,17 +93,6 @@ void process_input(void)
 				backface_culling_enabled = false;
 			}
 
-			if (event.key.keysym.sym == SDLK_n)
-			{
-				printf("normal enabled\n");
-				normal_enabled = true;
-			}
-			else if (event.key.keysym.sym == SDLK_b)
-			{
-				printf("normal disabled\n");
-				normal_enabled = false;
-			}
-
 			if (event.key.keysym.sym == SDLK_ESCAPE)
 			{
 				running = false;

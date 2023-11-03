@@ -85,6 +85,36 @@ mat4_t get_rotation_matrix(float angle, Axis axis)
 	return matrix;
 }
 
+mat4_t get_perspective_matrix(float aspect, float fov, float znear, float zfar)
+{
+	mat4_t matrix = { .m = 0 };
+
+	float a = aspect;
+	float f = ( 1 / (tanf(fov / 2)) );
+	float d = zfar / (zfar - znear);
+	float offset = -d * znear;
+
+	/*
+	* 
+	* [	a*f 0  0     0    ]   [ x ]
+	* [  0  f  0     0    ] * [ y ]
+	* [  0  0  d   offset ]   [ z ]
+	* [  0  0  1     0    ]   [ 1 ]
+
+	* NOTE: (-d * znear) is the offset to keep range of values between zfar and znear 
+	* NOTE [3][2] = 1 to store the original z value here for later perspective divide)
+	* 
+	*/
+
+	matrix.m[0][0] = a * f;
+	matrix.m[1][1] = f;
+	matrix.m[2][2] = d;
+	matrix.m[2][3] = offset;
+	matrix.m[3][2] = 1.0f; //store the original z value in the w position of the vector we multiply against
+
+	return matrix;
+}
+
 mat4_t get_combined_matrix(mat4_t m1, mat4_t m2)
 {
 	int num_rows = 4;
@@ -140,4 +170,17 @@ vec4_t m_transform(vec4_t vector, mat4_t matrix)
 	result.w = (matrix.m[3][0] * vector.x) + (matrix.m[3][1] * vector.y) + (matrix.m[3][2] * vector.z) + (matrix.m[3][3] * vector.w);
 
 	return result;
+}
+
+vec4_t project(mat4_t m_projection, vec4_t vector)
+{
+	vec4_t projected_vector = m_transform(vector, m_projection);
+
+	// perform perspective divide
+	projected_vector.x /= projected_vector.w;
+	projected_vector.y /= projected_vector.w;
+	projected_vector.z /= projected_vector.w;
+	projected_vector.w /= projected_vector.w;
+	
+	return projected_vector;
 }
