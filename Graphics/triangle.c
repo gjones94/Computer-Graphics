@@ -23,28 +23,28 @@ static void swap_triangles(triangle_t* triangle1, triangle_t* triangle2);
 /// <param name="triangle"></param>
 void fill_triangle(triangle_t triangle, uint32_t color)
 {
-	//==================================================================================
-	// Draw a filled triangle by cutting triangle in half, and drawing the top triangle
-	// first, followed by drawing the bottom triangle 
-	//
-	//
-	//	 			(x0, y0)
-	//					/\
-	//				   /| \
-	//				  /	|  \
-	//				 /  |   \
-	//	  (x1,y1)  ========= (mX, mY) (CUT IN HALF, must solve for midpoint m.x)
-	//				 \  |    \
-	//				   \|	  \
-	//				 	|\	   \
-	//				 	|  \    \
-	//				    |	 \   \
-	//			     	|	  \   \
-	//			     	|	    \  \
-	//			     	|	      \ \
-	//				 	|____________(x2, y2)
-	// 
-	//==================================================================================
+    //==================================================================================
+    // Draw a filled triangle by cutting triangle in half, and drawing the top triangle
+    // first, followed by drawing the bottom triangle 
+    //
+    //
+    //               (x0, y0)
+    //                  /\
+    //                 /| \
+    //                / |  \
+    //               /  |   \
+    //       (x1,y1) ========= (mX, mY) (CUT IN HALF, must solve for midpoint m.x)
+    //                \  |    \
+    //                  \|     \
+    //                  |\     \
+    //                  |  \    \
+    //                  |    \   \
+    //                  |     \   \
+    //                  |       \  \
+    //                  |         \ \
+    //                  |____________(x2, y2)
+    // 
+    //==================================================================================
 
 	//sort by y coordinate so that v1 is the middle height
 	sort_triangle_vertices(triangle.points);

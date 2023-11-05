@@ -112,6 +112,7 @@ mat4_t get_perspective_matrix(float aspect, float fov, float znear, float zfar)
 	* 
 	* Note that zm + b = Zn, so this is a slope intercept form
 	* Since we have to end up with Z^2, 
+	* 
 	* 1) zm + b = z^2
 	* 
 	* 2) Divide everything by Z
