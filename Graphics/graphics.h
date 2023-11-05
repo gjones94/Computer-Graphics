@@ -11,7 +11,9 @@
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 1000
 #define COLOR_BACKGROUND BLACK
-#define FOV 700
+#define ZFAR 10
+#define ZNEAR 1
+#define FOV 60
 #define FPS 60
 #define FRAME_TARGET_TIME (1000 / FPS)
 

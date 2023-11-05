@@ -5,6 +5,7 @@
 #include "matrix.h"
 #include "mesh.h"
 #include "array.h"
+#include "utilities.h"
 
 //=========================================================
 // SDL INITIALIZATION
@@ -18,14 +19,11 @@ vec3_t camera_position;
 mat4_t m_perspective;
 
 triangle_t* triangles_to_render;
-float const angle_increment = 0.005f;
+float const angle_increment = 0.003f;
 float const scale_increment = 0.002f;
 float const translation_increment = 0.001f;
-float const zfar = 10.0f;
-float const znear = 1.0f;
-float const fov = (float) M_PI / 3;
-float const aspect_ratio = (float) WINDOW_HEIGHT / (float) WINDOW_WIDTH;
-
+float aspect_ratio;
+float fov;
 
 int originX = 0;
 int originY = 0;
@@ -63,7 +61,9 @@ bool init_graphics()
 
 	init_camera();
 
-	m_perspective = get_perspective_matrix(aspect_ratio, fov, znear, zfar);
+	fov = get_angle_radians(FOV);
+	aspect_ratio = (float) WINDOW_HEIGHT / (float) WINDOW_WIDTH;
+	m_perspective = get_perspective_matrix(aspect_ratio, fov, ZNEAR, ZFAR);
 
 	return success;
 }
@@ -75,15 +75,10 @@ void update()
 	// Set Next Movements for Mesh
 	for (int i = 0; i < num_meshes; i++)
 	{
-		//meshes[i]->scale.x += scale_increment;
-		//meshes[i]->scale.y += scale_increment;
-		//meshes[i]->scale.z += scale_increment;
-
 		meshes[i]->rotation.x += angle_increment;
 		meshes[i]->rotation.y += angle_increment;
 		meshes[i]->rotation.z += angle_increment;
-
-		meshes[i]->translation.x += .002f;
+		//meshes[i]->translation.x += .002f;
 
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
@@ -308,20 +303,21 @@ void draw_normal(normal2_t surface_normal, uint32_t color)
 bool cull_backface(vec3_t a, vec3_t b, vec3_t c)
 {
 	/*
-		==============================================================================================
-			 Backface Culling
-					 N
-					 |
-					 a
-					/|\
-				   / | \
-				  c  |  b
-					 |
-				  camera
+       ==========================
+          Backface Culling
+                 N
+                 |
+                 a
+                /|\
+               / | \
+              c  |  b
+                 |
+               camera
+       ==========================
 	*/
 
 	/*
-		Get Normal
+	    Get Normal
 		1. Get A->B = B - A
 		2. Get A->C = C - A
 		3. Get Cross Product(AB X AC) = Perpindicular Normal at A
@@ -329,11 +325,10 @@ bool cull_backface(vec3_t a, vec3_t b, vec3_t c)
 	vec3_t normal = get_normal(a, b, c);
 
 	/*
-		Calculate Dot Product between ray to camera and the normal
+        Calculate Dot Product between ray to camera and the normal
 		4. Get A->Camera = Camera - A
 		5. Get Dot Product of N and A->Camera
 		6. Evaluate if Normal is at facing towards the camera
-		==============================================================================================
 	*/
 
 	vec3_t camera_ray = vec3_subtract(camera_position, a); // camera - a
@@ -341,8 +336,8 @@ bool cull_backface(vec3_t a, vec3_t b, vec3_t c)
 
 	// 
 	//	A dot product >= 0 means the surface normal is facing towards the camera or is at least perpendicular to the camera
-	//						 N										N
-	//						/__  Camera				OR				|__  camera 
+	//                       N                                      N
+	//                      /__  Camera            OR               |__  camera 
 	//
 	if (dot_product < 0)
 	{

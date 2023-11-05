@@ -139,6 +139,7 @@
     <ClCompile Include="matrix.c" />
     <ClCompile Include="mesh.c" />
     <ClCompile Include="triangle.c" />
+    <ClCompile Include="utilities.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
@@ -148,6 +149,7 @@
     <ClInclude Include="matrix.h" />
     <ClInclude Include="mesh.h" />
     <ClInclude Include="triangle.h" />
+    <ClInclude Include="utilities.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
   <ItemGroup>
