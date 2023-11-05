@@ -217,8 +217,8 @@ static vec2_t get_opposite_midpoint(triangle_t triangle)
     //                / |  \
     //               /  |   \
     //       (x1,y1) ========= (mX, mY) (CUT IN HALF, must solve for midpoint m.x)
-	//                \  |    \
-    //                  \|     \
+	//               \  |    \
+    //                 \|     \
     //                  |\     \
     //                  |  \    \
     //                  |    \   \
