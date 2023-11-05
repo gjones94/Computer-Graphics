@@ -198,12 +198,17 @@ vec4_t m_transform(vec4_t vector, mat4_t matrix)
 vec4_t project(mat4_t m_projection, vec4_t vector)
 {
 	vec4_t projected_vector = m_transform(vector, m_projection);
+	
+	//TODO CLIP VECTORS OUTSIDE OF VIEWPORT
 
 	// perform perspective divide
-	projected_vector.x /= projected_vector.w;
-	projected_vector.y /= projected_vector.w;
-	projected_vector.z /= projected_vector.w;
-	projected_vector.w /= projected_vector.w;
+	if (projected_vector.w != 0)
+	{
+		projected_vector.x /= projected_vector.w;
+		projected_vector.y /= projected_vector.w;
+		projected_vector.z /= projected_vector.w;
+		projected_vector.w /= projected_vector.w;
+	}
 	
 	return projected_vector;
 }

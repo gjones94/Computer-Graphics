@@ -93,22 +93,6 @@ vec3_t vec3_add(vec3_t a, vec3_t b)
 	return result;
 }
 
-vec3_t get_center_vertex(vec3_t* vectors, int length)
-{
-	float x = 0.0f;
-	float y = 0.0f;
-	float z = 0.0f;
-
-	for (int i = 0; i < length; i++)
-	{
-		x += vectors[i].x;
-		y += vectors[i].y;
-		z += vectors[i].z;
-	}
-
-	vec3_t centered_vertex = { .x = x / length, .y = y / length, .z = z / length };
-	return centered_vertex;
-}
 
 vec3_t vec3_subtract(vec3_t target, vec3_t source)
 {
@@ -181,6 +165,23 @@ vec3_t vec3_from_vec4(vec4_t vector)
 {
 	vec3_t v = { .x = vector.x, .y = vector.y, .z = vector.z };
 	return v;
+}
+
+vec3_t get_center_vertex(vec3_t* vectors, int length)
+{
+	float x = 0.0f;
+	float y = 0.0f;
+	float z = 0.0f;
+
+	for (int i = 0; i < length; i++)
+	{
+		x += vectors[i].x;
+		y += vectors[i].y;
+		z += vectors[i].z;
+	}
+
+	vec3_t centered_vertex = { .x = x / length, .y = y / length, .z = z / length };
+	return centered_vertex;
 }
 
 vec4_t vec4_from_vec3(vec3_t vector)

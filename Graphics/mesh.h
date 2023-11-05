@@ -12,6 +12,7 @@ typedef struct
 } face_t;
 
 
+
 typedef struct
 {
 	vec3_t* vertices;

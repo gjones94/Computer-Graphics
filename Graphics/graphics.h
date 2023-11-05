@@ -76,7 +76,7 @@ void fill_triangle(triangle_t triangle, uint32_t color);
 /// <summary>
 /// Draws a normal vector relative to the face
 /// </summary>
-void draw_normal(normal2_t surface_normal, uint32_t color);
+void draw_normal(normal_t surface_normal, uint32_t color);
 
 /// <summary>
 /// Update objects to render

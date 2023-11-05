@@ -3,8 +3,10 @@
 #include <stdbool.h>
 
 #include "graphics.h"
+#include "utilities.h"
 #include "vector.h"
 #include "colors.h"
+#include "light.h"
 #include "mesh.h"
 
 #define CONTROL_MOVEMENT .03f
@@ -13,10 +15,6 @@
 // FUNCTION PROTOTYPES
 //=========================================================
 void process_input(void);
-
-//=========================================================
-// VARIABLES
-//=========================================================
 
 int main(int argc, char* args[])
 {
@@ -128,7 +126,6 @@ void process_input(void)
 			//{
 			//	rotate_mesh(mesh, (float) - CONTROL_MOVEMENT, Z_AXIS);
 			//}
-
 			break;
 	}
 }

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "graphics.h"
 #include "colors.h"
+#include "light.h"
 #include "vector.h"
 #include "matrix.h"
 #include "mesh.h"
@@ -16,6 +17,7 @@ SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
 
 vec3_t camera_position; 
+light_t light_source;
 mat4_t m_perspective;
 
 triangle_t* triangles_to_render;
@@ -41,6 +43,7 @@ static void set_dimensions();
 static bool init_window();
 static bool init_buffers(void);
 static void init_camera();
+static void init_light();
 static void throttle_fps(); //delay drawing to match desired FPS
 static void render_texture(); // Update texture with buffer and copy texture to renderer
 static void clear_buffer(uint32_t color);
@@ -60,6 +63,7 @@ bool init_graphics()
 	}
 
 	init_camera();
+	init_light();
 
 	fov = get_angle_radians(FOV);
 	aspect_ratio = (float) WINDOW_HEIGHT / (float) WINDOW_WIDTH;
@@ -78,10 +82,10 @@ void update()
 		meshes[i]->rotation.x += angle_increment;
 		meshes[i]->rotation.y += angle_increment;
 		meshes[i]->rotation.z += angle_increment;
-		//meshes[i]->translation.x += .002f;
+		meshes[i]->translation.y = 1;
 
 		//Move mesh away from origin to be in view
-		meshes[i]->translation.z = 5;
+		meshes[i]->translation.z = 6;
 	}
 
 	// Apply movements for mesh using matrices
@@ -137,11 +141,24 @@ void update()
 			vec3_t b = vec3_from_vec4(transformed_vertices[1]);
 			vec3_t c = vec3_from_vec4(transformed_vertices[2]);
 
+			vec3_t normal = get_normal(a, b, c);
+			vec3_t face_center = get_center_vertex(transformed_vertices, 3);
+
+			normal = vec3_add(normal, face_center);
+
+			vec4_t face_center4 = vec4_from_vec3(face_center);
+			vec4_t normal4 = vec4_from_vec3(normal);
+
+			face_center4 = project(m_perspective, face_center4);
+			normal4 = project(m_perspective, normal4);
+
 			bool crop_out_surface = cull_backface(a, b, c);
 			if (crop_out_surface)
 			{
 				continue;
 			}
+
+			normal_t surface_normal2 = { .start.x = face_center4.x, .start.y = face_center4.y, .end.x = normal4.x, .end.y = normal4.y };
 
 			// Get average depth for triangle for sorting render order of triangles
 			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
@@ -168,8 +185,18 @@ void update()
 				projected_triangle.points[j].y = projected_vertex.y;
 				projected_triangle.avg_depth = depth;
 			}
+			
+			// Obtain face_normal for later use
+			//vec3_t normal = get_normal(a, b, c);
+			//vec3_t face_light_ray = vec3_subtract(light_source.direction, normal);
 
-			projected_triangle.color = mesh_face.color;
+			//vec3_t face_center = get_center_vertex(projected_triangle.points, 3);
+
+			//float intensity = vec3_dot(light_source.direction, face_light_ray);
+
+			uint32_t light_adjusted_color = adjust_color_lighting(.5, mesh_face.color);
+			projected_triangle.color = light_adjusted_color;
+			projected_triangle.normal = surface_normal2;
 
 			// Add triangle for rendering
 			array_push(triangles_to_render, projected_triangle);
@@ -194,6 +221,7 @@ void render()
 		{
 			draw_triangle(triangles_to_render[i], WHITE);
 		}
+		draw_normal(triangles_to_render[i].normal, BLUE);
 	}
 
 	array_free(triangles_to_render);
@@ -289,15 +317,20 @@ void draw_triangle(triangle_t triangle, uint32_t color)
 	);
 }
 
-void draw_normal(normal2_t surface_normal, uint32_t color)
+void draw_normal(normal_t surface_normal, uint32_t color)
 {
-	// Center projected point onto screen coordinates
-	surface_normal.start_point.x += get_origin_x();
-	surface_normal.start_point.y += get_origin_y();
-	surface_normal.end_point.x += get_origin_y();
-	surface_normal.end_point.y += get_origin_y();
 
-	draw_line((int)surface_normal.start_point.x, (int)surface_normal.start_point.y, (int)surface_normal.end_point.x, (int)surface_normal.end_point.y, color);
+	surface_normal.start.x *= (int) WINDOW_WIDTH / 2;
+	surface_normal.start.y *= (int) WINDOW_HEIGHT / 2;
+	surface_normal.end.x *= (int) WINDOW_WIDTH / 2;
+	surface_normal.end.y *= (int) WINDOW_HEIGHT / 2;
+	// Center projected point onto screen coordinates
+	surface_normal.start.x += get_origin_x();
+	surface_normal.start.y += get_origin_y();
+	surface_normal.end.x += get_origin_x();
+	surface_normal.end.y += get_origin_y();
+
+	draw_line((int)surface_normal.start.x, (int)surface_normal.start.y, (int)surface_normal.end.x, (int)surface_normal.end.y, color);
 }
 
 bool cull_backface(vec3_t a, vec3_t b, vec3_t c)
@@ -447,6 +480,14 @@ static void init_camera()
 	camera_position.x = 0;
 	camera_position.y = 0;
 	camera_position.z = 0;
+}
+
+static void init_light()
+{
+	// light is looking straight down
+	light_source.direction.x = 1;
+	light_source.direction.y = 0;
+	light_source.direction.z = 0;
 }
 
 /// <summary>
