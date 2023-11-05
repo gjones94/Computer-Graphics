@@ -121,19 +121,19 @@ static triangle_t* sort_by_depth(triangle_t* triangles, int num_triangles)
 /// <param name="m"> => m.y = v1.y, (solve for m.x)</param>
 static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color)
 {
-	//======================================
-	//
-	//	    	  (x0,y0)
-	//				/|\
-	//			   / | \
-	//	 (slope1) /	 |  \ (slope2)
-	//			 /   |	 \
-	//			/	 |	  \
-	//	(x1,y1) ----------- (xm, ym)
-	//				 |
-	//			  (x0,y1)
-	//
-	//======================================
+    //======================================
+    //
+    //            (x0,y0)
+    //              /|\
+    //             / | \
+    //   (slope1) /  |  \ (slope2)
+    //           /   |   \
+    //			/    |    \
+    //  (x1,y1) ----------- (xm, ym)
+    //               |
+    //            (x0,y1)
+    //
+    //======================================
 
 	int y0 = (int) v0.y;
 	int y1 = (int) v1.y;
