@@ -208,7 +208,7 @@ static vec2_t get_opposite_midpoint(triangle_t triangle)
 	float x2 = triangle.points[2].x;
 	float y2 = triangle.points[2].y;
 
-	//==================================================================================
+    //==================================================================================
     //
     //
     //               (x0, y0)
@@ -226,8 +226,8 @@ static vec2_t get_opposite_midpoint(triangle_t triangle)
     //                  |       \  \
     //                  |         \ \
     //                  |____________(x2, y2)
-	// 
-	//==================================================================================
+    // 
+    //==================================================================================
 
 	midpoint.y = triangle.points[1].y; // the triangle points were sorted so that y1 is in the middle of y0 and y2
 	/*
