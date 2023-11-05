@@ -21,8 +21,8 @@ triangle_t* triangles_to_render;
 float const angle_increment = 0.005f;
 float const scale_increment = 0.002f;
 float const translation_increment = 0.001f;
-float const zfar = 2.0f;
-float const znear = 0.01f;
+float const zfar = 10.0f;
+float const znear = 1.0f;
 float const fov = (float) M_PI / 3;
 float const aspect_ratio = (float) WINDOW_HEIGHT / (float) WINDOW_WIDTH;
 
