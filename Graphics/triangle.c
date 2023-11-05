@@ -128,7 +128,7 @@ static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t c
     //             / | \
     //   (slope1) /  |  \ (slope2)
     //           /   |   \
-    //			/    |    \
+    //          /    |    \
     //  (x1,y1) ----------- (xm, ym)
     //               |
     //            (x0,y1)
