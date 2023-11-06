@@ -142,7 +142,7 @@ void update()
 			vec3_t c = vec3_from_vec4(transformed_vertices[2]);
 
 			vec3_t normal = get_normal(a, b, c);
-			vec3_t face_center = get_center_vertex(transformed_vertices, 3);
+			vec3_t face_center = get_center_vertex(a, b, c);
 
 			normal = vec3_add(normal, face_center);
 

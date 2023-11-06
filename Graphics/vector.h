@@ -94,7 +94,7 @@ vec3_t vec3_subtract(vec3_t target, vec3_t source);
 /// <param name="vectors"></param>
 /// <param name="length"></param>
 /// <returns></returns>
-vec3_t get_center_vertex(vec3_t* vectors, int length);
+vec3_t get_center_vertex(vec3_t a, vec3_t b, vec3_t c);
 
 /// <summary>
 /// Multiplies a vector by a factor
