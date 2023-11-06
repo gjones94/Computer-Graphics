@@ -201,7 +201,7 @@ normal_t get_normal_ray(vec3_t a, vec3_t b, vec3_t c)
 	// Attach normal to center of face
 	normal = vec3_add(normal, face_center);
 
-	normal_t surface_normal = { .start = face_center,  .end = normal };
+	normal_t surface_normal = { .start = face_center, .end = normal };
 
 	return surface_normal;
 }

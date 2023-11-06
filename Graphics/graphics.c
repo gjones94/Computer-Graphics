@@ -35,7 +35,7 @@ int previous_frame_time = 0;
 bool backface_culling_enabled = true;
 bool wireframe_enabled = true;
 bool fill_enabled = true;
-bool normal_enabled = false;
+bool normal_enabled = true;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -142,13 +142,13 @@ void update()
 			vec3_t b = vec3_from_vec4(transformed_vertices[1]);
 			vec3_t c = vec3_from_vec4(transformed_vertices[2]);
 
-			normal_t surface_normal = get_normal_ray(a, b, c);
-
 			bool crop_out_surface = cull_backface(a, b, c);
 			if (crop_out_surface)
 			{
 				continue;
 			}
+
+			normal_t surface_normal = get_normal_ray(a, b, c);
 
 			// Get average depth for triangle for sorting render order of triangles
 			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
@@ -321,11 +321,11 @@ void draw_normal(normal_t surface_normal, uint32_t color)
 	face_center4 = project(m_perspective, face_center4);
 	normal4 = project(m_perspective, normal4);
 
-	surface_normal.start.x *= (int) WINDOW_WIDTH / 2;
-	surface_normal.start.y *= (int) WINDOW_HEIGHT / 2;
+	surface_normal.start.x *= ((int) WINDOW_WIDTH / 2);
+	surface_normal.start.y *= ((int) WINDOW_HEIGHT / 2);
 
-	surface_normal.end.x *= (int) WINDOW_WIDTH / 2;
-	surface_normal.end.y *= (int) WINDOW_HEIGHT / 2;
+	surface_normal.end.x *= ((int) WINDOW_WIDTH / 2);
+	surface_normal.end.y *= ((int) WINDOW_HEIGHT / 2);
 
 	// Center projected point onto screen coordinates
 	surface_normal.start.x += get_origin_x();
