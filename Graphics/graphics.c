@@ -321,20 +321,19 @@ void draw_normal(normal_t surface_normal, uint32_t color)
 	face_center4 = project(m_perspective, face_center4);
 	normal4 = project(m_perspective, normal4);
 
-	surface_normal.start.x *= ((int) WINDOW_WIDTH / 2);
-	surface_normal.start.y *= ((int) WINDOW_HEIGHT / 2);
-
-	surface_normal.end.x *= ((int) WINDOW_WIDTH / 2);
-	surface_normal.end.y *= ((int) WINDOW_HEIGHT / 2);
+	// Scale to screen size
+	float start_x = face_center4.x * (int) WINDOW_WIDTH / 2;
+	float start_y = face_center4.y * (int) WINDOW_HEIGHT / 2;
+	float end_x = normal4.x * (int)WINDOW_WIDTH / 2;
+	float end_y = normal4.y * (int)WINDOW_HEIGHT / 2;
 
 	// Center projected point onto screen coordinates
-	surface_normal.start.x += get_origin_x();
-	surface_normal.start.y += get_origin_y();
+	start_x += get_origin_x();
+	start_y += get_origin_y();
+	end_x += get_origin_x();
+	end_y += get_origin_y();
 
-	surface_normal.end.x += get_origin_x();
-	surface_normal.end.y += get_origin_y();
-
-	draw_line((int)surface_normal.start.x, (int)surface_normal.start.y, (int)surface_normal.end.x, (int)surface_normal.end.y, color);
+	draw_line((int)start_x, (int)start_y, (int)end_x, (int)end_y, color);
 }
 
 bool cull_backface(vec3_t a, vec3_t b, vec3_t c)
