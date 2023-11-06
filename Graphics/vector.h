@@ -19,13 +19,6 @@ typedef struct
 
 typedef struct
 {
-	vec2_t start_point;
-	vec2_t end_point;
-
-} normal2_t;
-
-typedef struct
-{
 	float x, y, z;
 
 } vec3_t;
@@ -33,7 +26,15 @@ typedef struct
 typedef struct
 {
 	float x, y, z, w;
+
 } vec4_t;
+
+typedef struct
+{
+	vec3_t start;
+	vec3_t end;
+
+} normal_t;
 
 //=========================================================
 // VECTOR 2 FUNCTIONS
@@ -94,7 +95,7 @@ vec3_t vec3_subtract(vec3_t target, vec3_t source);
 /// <param name="vectors"></param>
 /// <param name="length"></param>
 /// <returns></returns>
-vec3_t get_center_vertex(vec3_t* vectors, int length);
+vec3_t get_center_vertex(vec3_t a, vec3_t b, vec3_t c);
 
 /// <summary>
 /// Multiplies a vector by a factor
@@ -164,3 +165,13 @@ float vec3_dot(vec3_t a, vec3_t b);
 
 vec3_t vec3_from_vec4(vec4_t vector);
 vec4_t vec4_from_vec3(vec3_t vector);
+
+
+/// <summary>
+/// Returns a normal ray from start vector to end vector
+/// </summary>
+/// <param name="a"></param>
+/// <param name="b"></param>
+/// <param name="c"></param>
+/// <returns>normal_t normal ray centered on surface of vertices</returns>
+normal_t get_normal_ray(vec3_t a, vec3_t b, vec3_t c);

@@ -152,13 +152,14 @@ vec3_t get_normal(vec3_t a, vec3_t b, vec3_t c)
 	return normal;
 }
 
+
 void vec3_normalize(vec3_t *v)
 {
 	float length = vec3_length(*v);
 
-	v->x /= (length);
-	v->y /= (length);
-	v->z /= (length);
+	v->x /= length;
+	v->y /= length;
+	v->z /= length;
 }
 
 vec3_t vec3_from_vec4(vec4_t vector)
@@ -167,20 +168,21 @@ vec3_t vec3_from_vec4(vec4_t vector)
 	return v;
 }
 
-vec3_t get_center_vertex(vec3_t* vectors, int length)
+vec3_t get_center_vertex(vec3_t a, vec3_t b, vec3_t c)
 {
 	float x = 0.0f;
 	float y = 0.0f;
 	float z = 0.0f;
 
-	for (int i = 0; i < length; i++)
-	{
-		x += vectors[i].x;
-		y += vectors[i].y;
-		z += vectors[i].z;
-	}
+	x += a.x + b.x + c.x;
+	y += a.y + b.y + c.y;
+	z += a.z + b.z + c.z;
 
-	vec3_t centered_vertex = { .x = x / length, .y = y / length, .z = z / length };
+	x /= 3.0f;
+	y /= 3.0f;
+	z /= 3.0f;
+
+	vec3_t centered_vertex = { .x = x, .y = y, .z = z };
 	return centered_vertex;
 }
 
@@ -188,4 +190,18 @@ vec4_t vec4_from_vec3(vec3_t vector)
 {
 	vec4_t v = { .x = vector.x, .y = vector.y, .z = vector.z, .w = 1 };
 	return v;
+}
+
+normal_t get_normal_ray(vec3_t a, vec3_t b, vec3_t c)
+{
+	// Get normal and face center
+	vec3_t normal = get_normal(a, b, c);
+	vec3_t face_center = get_center_vertex(a, b, c);
+
+	// Attach normal to center of face
+	normal = vec3_add(normal, face_center);
+
+	normal_t surface_normal = { .start = face_center,  .end = normal };
+
+	return surface_normal;
 }

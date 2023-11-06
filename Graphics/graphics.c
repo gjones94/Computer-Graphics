@@ -35,6 +35,7 @@ int previous_frame_time = 0;
 bool backface_culling_enabled = true;
 bool wireframe_enabled = true;
 bool fill_enabled = true;
+bool normal_enabled = false;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -82,10 +83,10 @@ void update()
 		meshes[i]->rotation.x += angle_increment;
 		meshes[i]->rotation.y += angle_increment;
 		meshes[i]->rotation.z += angle_increment;
-		meshes[i]->translation.y = 1;
+		//meshes[i]->translation.y = 1;
 
 		//Move mesh away from origin to be in view
-		meshes[i]->translation.z = 6;
+		meshes[i]->translation.z = 5;
 	}
 
 	// Apply movements for mesh using matrices
@@ -141,24 +142,13 @@ void update()
 			vec3_t b = vec3_from_vec4(transformed_vertices[1]);
 			vec3_t c = vec3_from_vec4(transformed_vertices[2]);
 
-			vec3_t normal = get_normal(a, b, c);
-			vec3_t face_center = get_center_vertex(transformed_vertices, 3);
-
-			normal = vec3_add(normal, face_center);
-
-			vec4_t face_center4 = vec4_from_vec3(face_center);
-			vec4_t normal4 = vec4_from_vec3(normal);
-
-			face_center4 = project(m_perspective, face_center4);
-			normal4 = project(m_perspective, normal4);
+			normal_t surface_normal = get_normal_ray(a, b, c);
 
 			bool crop_out_surface = cull_backface(a, b, c);
 			if (crop_out_surface)
 			{
 				continue;
 			}
-
-			normal_t surface_normal2 = { .start.x = face_center4.x, .start.y = face_center4.y, .end.x = normal4.x, .end.y = normal4.y };
 
 			// Get average depth for triangle for sorting render order of triangles
 			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
@@ -196,7 +186,7 @@ void update()
 
 			uint32_t light_adjusted_color = adjust_color_lighting(.5, mesh_face.color);
 			projected_triangle.color = light_adjusted_color;
-			projected_triangle.normal = surface_normal2;
+			projected_triangle.surface_normal = surface_normal;
 
 			// Add triangle for rendering
 			array_push(triangles_to_render, projected_triangle);
@@ -221,7 +211,11 @@ void render()
 		{
 			draw_triangle(triangles_to_render[i], WHITE);
 		}
-		draw_normal(triangles_to_render[i].normal, BLUE);
+
+		if (normal_enabled)
+		{
+			draw_normal(triangles_to_render[i].surface_normal, BLUE);
+		}
 	}
 
 	array_free(triangles_to_render);
@@ -319,14 +313,24 @@ void draw_triangle(triangle_t triangle, uint32_t color)
 
 void draw_normal(normal_t surface_normal, uint32_t color)
 {
+	// Convert to vec4 for projection
+	vec4_t face_center4 = vec4_from_vec3(surface_normal.start);
+	vec4_t normal4 = vec4_from_vec3(surface_normal.end);
+
+	// Project normal
+	face_center4 = project(m_perspective, face_center4);
+	normal4 = project(m_perspective, normal4);
 
 	surface_normal.start.x *= (int) WINDOW_WIDTH / 2;
 	surface_normal.start.y *= (int) WINDOW_HEIGHT / 2;
+
 	surface_normal.end.x *= (int) WINDOW_WIDTH / 2;
 	surface_normal.end.y *= (int) WINDOW_HEIGHT / 2;
+
 	// Center projected point onto screen coordinates
 	surface_normal.start.x += get_origin_x();
 	surface_normal.start.y += get_origin_y();
+
 	surface_normal.end.x += get_origin_x();
 	surface_normal.end.y += get_origin_y();
 

@@ -34,6 +34,7 @@ extern int previous_frame_time;
 extern bool backface_culling_enabled;
 extern bool wireframe_enabled;
 extern bool fill_enabled;
+extern bool normal_enabled;
 
 //=========================================================
 // FUNCTION PROTOTYPES
