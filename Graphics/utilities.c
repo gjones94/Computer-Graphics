@@ -4,7 +4,7 @@
 
 float get_angle_radians(float degrees)
 {
-	return (float) (degrees) * (M_PI / 180.0f);
+	return (float) (degrees) * (float) (M_PI / 180.0f);
 }
 
 void print_bits(uint32_t byte_4)

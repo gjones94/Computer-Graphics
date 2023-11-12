@@ -25,7 +25,7 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	bool success = load_mesh_from_file("cube.obj");
+	bool success = load_mesh_from_file("f22.obj");
 
 	if (success)
 	{
@@ -89,6 +89,17 @@ void process_input(void)
 			{
 				printf("culling disabled\n");
 				backface_culling_enabled = false;
+			}
+
+			if (event.key.keysym.sym == SDLK_t)
+			{
+				printf("texture enabled\n");
+				texture_enabled = true;
+			}
+			else if (event.key.keysym.sym == SDLK_r)
+			{
+				printf("texture disabled\n");
+				texture_enabled = false;
 			}
 
 			if (event.key.keysym.sym == SDLK_n)

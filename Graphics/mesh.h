@@ -3,15 +3,15 @@
 #include <stdbool.h>
 #include "triangle.h"
 #include "vector.h"
+#include "texture.h"
 
 typedef struct
 {
 	int a, b, c;
+	text2_t a_uv, b_uv, c_uv; // UV coordinate mapping to a texture
 	uint32_t color;
 
 } face_t;
-
-
 
 typedef struct
 {

@@ -35,6 +35,7 @@ extern bool backface_culling_enabled;
 extern bool wireframe_enabled;
 extern bool fill_enabled;
 extern bool normal_enabled;
+extern bool texture_enabled;
 
 //=========================================================
 // FUNCTION PROTOTYPES
@@ -77,7 +78,7 @@ void fill_triangle(triangle_t triangle, uint32_t color);
 /// <summary>
 /// Draws a normal vector relative to the face
 /// </summary>
-void draw_normal(normal_t surface_normal, uint32_t color);
+void draw_ray(normal_t ray, uint32_t color);
 
 /// <summary>
 /// Update objects to render

@@ -12,7 +12,6 @@ static void sort_triangle_vertices(vec2_t* vertices);
 static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color);
 static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color);
 static vec2_t get_opposite_midpoint(triangle_t triangle);
-static triangle_t* sort_by_depth(triangle_t* triangles, int num_triangles);
 static void swap_vectors(vec2_t* v1, vec2_t* v2);
 static void swap_triangles(triangle_t* triangle1, triangle_t* triangle2);
 //============================================================================
@@ -62,6 +61,20 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 	fill_flat_top_triangle(v1, m, v2, color);
 }
 
+void sort_by_depth(triangle_t* triangles, int num_triangles)
+{
+	for (int i = 0; i < num_triangles; i++)
+	{
+		for (int j = 0; j < num_triangles; j++)
+		{
+			if (triangles[i].avg_depth > triangles[j].avg_depth)
+			{
+				swap_triangles(&triangles[i], &triangles[j]);
+			}
+		}
+
+	}
+}
 
 /// <summary>
 /// Sorts vertices from least to greatest by the y coordinate
@@ -97,20 +110,6 @@ static void sort_triangle_vertices(vec2_t *vertices)
 	vertices[2] = v2;
 }
 
-static triangle_t* sort_by_depth(triangle_t* triangles, int num_triangles)
-{
-	for (int i = 0; i < num_triangles; i++)
-	{
-		for (int j = 0; j < num_triangles; j++)
-		{
-			if (triangles[i].avg_depth > triangles[j].avg_depth)
-			{
-				swap_triangles(&triangles[i], &triangles[j]);
-			}
-		}
-
-	}
-}
 
 /// <summary>
 /// Fill flat bottom triangle

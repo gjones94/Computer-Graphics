@@ -4,6 +4,7 @@
 #include "light.h"
 #include "vector.h"
 #include "matrix.h"
+#include "triangle.h"
 #include "mesh.h"
 #include "array.h"
 #include "utilities.h"
@@ -33,9 +34,10 @@ bool running = false;
 int previous_frame_time = 0;
 
 bool backface_culling_enabled = true;
-bool wireframe_enabled = true;
-bool fill_enabled = true;
-bool normal_enabled = true;
+bool wireframe_enabled = false;
+bool fill_enabled = false;
+bool normal_enabled = false;
+bool texture_enabled = true;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -83,7 +85,6 @@ void update()
 		meshes[i]->rotation.x += angle_increment;
 		meshes[i]->rotation.y += angle_increment;
 		meshes[i]->rotation.z += angle_increment;
-		//meshes[i]->translation.y = 1;
 
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
@@ -148,8 +149,9 @@ void update()
 				continue;
 			}
 
+			// Obtain surface normal of face
 			normal_t surface_normal = get_normal_ray(a, b, c);
-
+		
 			// Get average depth for triangle for sorting render order of triangles
 			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
 
@@ -166,6 +168,9 @@ void update()
 				projected_vertex.x *= (int) WINDOW_WIDTH / 2;
 				projected_vertex.y *= (int) WINDOW_HEIGHT / 2;
 
+				// Invert y coordinate do to inverted y screen coordinate
+				projected_vertex.y *= -1;
+
 				// Translate vertex relative to origin
 				projected_vertex.x += get_origin_x();
 				projected_vertex.y += get_origin_y();
@@ -176,15 +181,12 @@ void update()
 				projected_triangle.avg_depth = depth;
 			}
 			
-			// Obtain face_normal for later use
-			//vec3_t normal = get_normal(a, b, c);
-			//vec3_t face_light_ray = vec3_subtract(light_source.direction, normal);
+			// Get Light Intensity From Normal
+			vec3_t normal = get_normal(a, b, c);
+			float intensity = vec3_dot(normal, light_source.direction);
+			uint32_t light_adjusted_color = get_shaded_color(intensity, mesh_face.color);
 
-			//vec3_t face_center = get_center_vertex(projected_triangle.points, 3);
-
-			//float intensity = vec3_dot(light_source.direction, face_light_ray);
-
-			uint32_t light_adjusted_color = adjust_color_lighting(.5, mesh_face.color);
+			projected_triangle.draw_normal = normal_enabled;
 			projected_triangle.color = light_adjusted_color;
 			projected_triangle.surface_normal = surface_normal;
 
@@ -199,6 +201,7 @@ void render()
 	throttle_fps();
 
 	int size = array_length(triangles_to_render);
+	sort_by_depth(triangles_to_render, size);
 
 	for (int i = 0; i < size; i++)
 	{
@@ -212,9 +215,9 @@ void render()
 			draw_triangle(triangles_to_render[i], WHITE);
 		}
 
-		if (normal_enabled)
+		if (triangles_to_render[i].draw_normal)
 		{
-			draw_normal(triangles_to_render[i].surface_normal, BLUE);
+			draw_ray(triangles_to_render[i].surface_normal, BLUE);
 		}
 	}
 
@@ -311,21 +314,25 @@ void draw_triangle(triangle_t triangle, uint32_t color)
 	);
 }
 
-void draw_normal(normal_t surface_normal, uint32_t color)
+void draw_ray(normal_t ray, uint32_t color)
 {
 	// Convert to vec4 for projection
-	vec4_t face_center4 = vec4_from_vec3(surface_normal.start);
-	vec4_t normal4 = vec4_from_vec3(surface_normal.end);
+	vec4_t start = vec4_from_vec3(ray.start);
+	vec4_t end = vec4_from_vec3(ray.end);
 
 	// Project normal
-	face_center4 = project(m_perspective, face_center4);
-	normal4 = project(m_perspective, normal4);
+	start = project(m_perspective, start);
+	end = project(m_perspective, end);
 
 	// Scale to screen size
-	float start_x = face_center4.x * (int) WINDOW_WIDTH / 2;
-	float start_y = face_center4.y * (int) WINDOW_HEIGHT / 2;
-	float end_x = normal4.x * (int)WINDOW_WIDTH / 2;
-	float end_y = normal4.y * (int)WINDOW_HEIGHT / 2;
+	float start_x = start.x * (int) WINDOW_WIDTH / 2;
+	float start_y = start.y * (int) WINDOW_HEIGHT / 2;
+	float end_x = end.x * (int) WINDOW_WIDTH / 2;
+	float end_y = end.y * (int) WINDOW_HEIGHT / 2;
+
+	// Invert y coordinates to account for screen coordinate inversion of y axis
+	start_y *= -1;
+	end_y *= -1;
 
 	// Center projected point onto screen coordinates
 	start_x += get_origin_x();
@@ -488,8 +495,8 @@ static void init_camera()
 static void init_light()
 {
 	// light is looking straight down
-	light_source.direction.x = 1;
-	light_source.direction.y = 0;
+	light_source.direction.x = 0;
+	light_source.direction.y = 1;
 	light_source.direction.z = 0;
 }
 

@@ -1,14 +1,19 @@
 #include "utilities.h"
 #include "light.h"
 
-uint32_t adjust_color_lighting(float percentage, uint32_t color)
+uint32_t get_shaded_color(float light_percentage, uint32_t color)
 {
-	uint32_t light_adjuster = (int) (255 * (float) percentage);
+	float scaledMax = 1.0f;
 
-	if (light_adjuster > 255)
-	{
-		light_adjuster = 255;
-	}
+	//Results of a unit vector dot product of surface normal to a light source. 
+	float dotProductMaximum = 1.0f;
+	float dotProductMinimum = -1.0f;
+	float range = dotProductMaximum - dotProductMinimum;
+
+	// Scale lighting due to coordinates being between -1 and 1, need to change to be from 0 to 1 to apply proper percentage
+	float percentageScaled = ((light_percentage - dotProductMinimum) / range) * scaledMax;
+
+	uint32_t light_adjuster = (int) (255 * (float) percentageScaled);
 
 	uint32_t light_mask = 0;
 
