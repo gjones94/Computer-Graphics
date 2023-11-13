@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include "graphics.h"
 #include "triangle.h"
 #include <math.h>
@@ -13,7 +14,6 @@ static void sort_triangle_vertices(triangle_t* triangle);
 static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color);
 static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color);
 static vec2_t get_opposite_midpoint(triangle_t triangle);
-
 //============================================================================
 
 
@@ -71,7 +71,6 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 	vec2_t v2 = triangle.vertices[2];
 
 	// Fill Top Triangle (Flat Bottom)
-
 	int y0 = (int) v0.y;
 	int y1 = (int) v1.y;
 	int y2 = (int) v2.y;
@@ -79,39 +78,38 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 	float slope1 = 0;
 	float slope2 = 0;
 
+	// Prevent division by 0
 	if (y1 - y0 != 0)
 	{
-		slope1 = (v1.x - v0.x) / (float) (y1 - y0);
+		slope1 = (float) ((int) v1.x - (int) v0.x) / (float) (y1 - y0);
 	}
 
+	// Prevent division by 0
 	if (y2 - y0 != 0)
 	{
-		slope2 = (v2.x - v0.x) / (float) (y2 - y0);
+		slope2 = (float) ((int) v2.x - (int) v0.x) / (float) (y2 - y0);
 	}
 
-	float start_x = v0.x;
-	float end_x = v0.x;
-
+	// Make sure top triangle with flat bottom actually exists
 	if (y1 - y0 != 0)
 	{
+		float x1 = v0.x;
+		float x2 = v0.x;
+
 		for (int y = y0; y <= y1; y++)
 		{
-			draw_line((int)start_x, y, (int)end_x, y, 0xFF0000FF);
+			//draw_line((int) start_x, y, (int) end_x, y, 0xFF0000FF);
+			float start_x = x1 < x2 ? x1 : x2;
+			float end_x = x1 < x2 ? x2 : x1;
 
-			end_x += slope1; //calculate new startX
-			start_x += slope2; //calculate new endX
-
-			/*if (start_x > end_x)
-			{
-				float temp = start_x;
-				start_x = end_x;
-				end_x = temp;
-			}*/
-
-			/*for (int x = (int)start_x; x < (int)end_x; x++)
+			for (int x = (int) start_x; x <= (int) end_x; x++)
 			{
 				draw_pixel(x, y, 0xFF0000FF);
-			}*/
+				//printf("X: %d at height %d\n", (int) x, (int) y);
+			}
+
+			x1 += slope1; //calculate new startX
+			x2 += slope2; //calculate new endX
 		}
 	}
 
@@ -129,31 +127,27 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 		slope2 = (v0.x - v2.x) / (float) (y2 - y0);
 	}
 
+	// Make sure the bottom triangle actually exists
 	if (y2 - y1 != 0)
 	{
-		start_x = v2.x;
-		end_x = v2.x;
+		float x1 = v2.x;
+		float x2 = v2.x;
 
 		for (int y = y2; y >= y1; y--)
 		{
-			draw_line((int) start_x, y, (int) end_x, y, 0xFF0000FF);
+			// Obtain the starting x value
+			float start_x = x1 < x2 ? x1 : x2;
 
-			/*
-			for (int x = (int)start_x; x < (int)end_x; x++)
+			// Obtain the ending x value
+			float end_x = x1 < x2 ? x2: x1;
+
+			for (int x = (int) start_x; x <= (int) end_x; x++)
 			{
 				draw_pixel(x, y, 0xFF0000FF);
 			}
-			*/
 
-			start_x += slope1;
-			end_x += slope2;
-
-			/*if (start_x > end_x)
-			{
-				float swap = start_x;
-				start_x = end_x;
-				end_x = swap;
-			}*/
+			x1 += slope1;
+			x2 += slope2;
 		}
 	}
 }

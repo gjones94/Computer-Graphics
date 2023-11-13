@@ -88,8 +88,8 @@ void update()
 	for (int i = 0; i < num_meshes; i++)
 	{
 		meshes[i]->rotation.x += angle_increment;
-		meshes[i]->rotation.y += angle_increment;
-		meshes[i]->rotation.z += angle_increment;
+		//meshes[i]->rotation.y += angle_increment;
+		//meshes[i]->rotation.z += angle_increment;
 
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
@@ -158,7 +158,7 @@ void update()
 			normal_t surface_normal = get_normal_ray(a, b, c);
 		
 			// Get average depth for triangle for sorting render order of triangles
-			float depth = (float)(transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
+			float depth = (float) (transformed_vertices[0].z + transformed_vertices[1].z + transformed_vertices[2].z) / 3;
 
 			// Store projected 2d vertices as triangle
 			triangle_t projected_triangle;
@@ -173,7 +173,7 @@ void update()
 				projected_vertex.x *= (int) WINDOW_WIDTH / 2;
 				projected_vertex.y *= (int) WINDOW_HEIGHT / 2;
 
-				// Invert y coordinate do to inverted y screen coordinate
+				// Invert y coordinate due to inverted y screen coordinate
 				projected_vertex.y *= -1;
 
 				// Translate vertex relative to origin
