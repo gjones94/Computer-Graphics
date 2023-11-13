@@ -134,7 +134,7 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 		start_x = v2.x;
 		end_x = v2.x;
 
-		for (int y = y2; y > y1; y--)
+		for (int y = y2; y >= y1; y--)
 		{
 			draw_line((int) start_x, y, (int) end_x, y, 0xFF0000FF);
 
@@ -289,9 +289,9 @@ static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t colo
 	float start_x = v2.x;
 	float end_x = v2.x;
 
-	for (int y = y2; y >= v1.y; y--)
+	for (int y = y2; y >= y1; y--)
 	{
-		draw_line((int)start_x, y, (int)end_x, y, color);
+		draw_line((int) start_x, y, (int) end_x, y, color);
 		start_x += slope1_increment;
 		end_x += slope2_increment; 
 	}
