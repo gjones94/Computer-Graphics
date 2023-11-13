@@ -88,8 +88,8 @@ void update()
 	for (int i = 0; i < num_meshes; i++)
 	{
 		meshes[i]->rotation.x += angle_increment;
-		//meshes[i]->rotation.y += angle_increment;
-		//meshes[i]->rotation.z += angle_increment;
+		meshes[i]->rotation.y += angle_increment;
+		meshes[i]->rotation.z += angle_increment;
 
 		//Move mesh away from origin to be in view
 		meshes[i]->translation.z = 5;
@@ -218,7 +218,7 @@ void render()
 	{
 		if (fill_enabled)
 		{
-			fill_textured_triangle(triangles_to_render[i], NULL);
+			fill_textured_triangle(triangles_to_render[i], mesh_texture);
 			//fill_triangle(triangles_to_render[i], triangles_to_render[i].color);
 		}
 

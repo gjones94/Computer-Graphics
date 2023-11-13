@@ -62,6 +62,33 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 	fill_flat_top_triangle(v1, m, v2, color);
 }
 
+void draw_texel(int x, int y, vec2_t a, vec2_t b, vec2_t c, float u0, float v0, float u1, float v1, float u2, float v2, uint32_t* texture)
+{
+	vec2_t p = { x, y };
+
+	// get weights between 0 and 1 for current point
+	vec3_t weights = barycentric_weights(a, b, c, p);
+
+	float alpha = weights.x;
+	float beta = weights.y;
+	float gamma = weights.z;
+
+	// get interpolated uv based on current point
+	float interpolated_u = u0 * alpha + u1 * beta + u2 * gamma;
+	float interpolated_v = v0 * alpha + v1 * beta + v2 * gamma;
+
+	// Scale weighted uv according to png size
+	int text_x = abs((int)(interpolated_u * TEXTURE_WIDTH));
+	int text_y = abs((int)(interpolated_v * TEXTURE_HEIGHT));
+
+	// Get flat array index based on x and y
+	//                              ROW            COLUMN
+	int texture_index = ((TEXTURE_WIDTH * text_y) + text_x) % 4096;
+
+	draw_pixel(x, y, texture[texture_index]);
+}
+	
+
 void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 {
 	sort_triangle_vertices(&triangle);
@@ -69,6 +96,10 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 	vec2_t v0 = triangle.vertices[0];
 	vec2_t v1 = triangle.vertices[1];
 	vec2_t v2 = triangle.vertices[2];
+
+	text2_t t0 = triangle.texture_coordinates[0];
+	text2_t t1 = triangle.texture_coordinates[1];
+	text2_t t2 = triangle.texture_coordinates[2];
 
 	// Fill Top Triangle (Flat Bottom)
 	int y0 = (int) v0.y;
@@ -104,7 +135,8 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 
 			for (int x = (int) start_x; x <= (int) end_x; x++)
 			{
-				draw_pixel(x, y, 0xFF0000FF);
+				draw_texel(x, y, v0, v1, v2, t0.u, t0.v, t1.u, t1.v, t2.u, t2.v, texture);
+				//draw_pixel(x, y, 0xFF0000FF);
 				//printf("X: %d at height %d\n", (int) x, (int) y);
 			}
 
@@ -143,7 +175,7 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 
 			for (int x = (int) start_x; x <= (int) end_x; x++)
 			{
-				draw_pixel(x, y, 0xFF0000FF);
+				draw_texel(x, y, v0, v1, v2, t0.u, t0.v, t1.u, t1.v, t2.u, t2.v, texture);
 			}
 
 			x1 += slope1;

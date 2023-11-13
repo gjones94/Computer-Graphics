@@ -43,7 +43,7 @@ void swap_vectors(vec2_t* v1, vec2_t* v2);
 vec2_t project_2d(vec3_t vector, int FOV);
 float vec2_length(vec2_t v);
 vec2_t vec2_add(vec2_t a, vec2_t b);
-vec2_t vec2_subtract(vec2_t a, vec2_t b);
+vec2_t vec2_subtract(vec2_t source, vec2_t target);
 vec2_t vec2_multiply(vec2_t a, float scale_factor);
 vec2_t vec2_divide(vec2_t a, float scale_factor);
 float vec2_dot(vec2_t a, vec2_t b);
@@ -176,3 +176,5 @@ vec4_t vec4_from_vec3(vec3_t vector);
 /// <param name="c"></param>
 /// <returns>normal_t normal ray centered on surface of vertices</returns>
 normal_t get_normal_ray(vec3_t a, vec3_t b, vec3_t c);
+
+vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p);

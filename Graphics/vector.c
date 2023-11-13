@@ -19,9 +19,9 @@ vec2_t vec2_add(vec2_t a, vec2_t b)
 	return result;
 }
 
-vec2_t vec2_subtract(vec2_t a, vec2_t b)
+vec2_t vec2_subtract(vec2_t source, vec2_t target)
 {
-	vec2_t result = { a.x - b.x, a.y - b.y };
+	vec2_t result = { target.x - source.x, target.y - source.y };
 	return result;
 }
 
@@ -210,5 +210,45 @@ normal_t get_normal_ray(vec3_t a, vec3_t b, vec3_t c)
 	normal_t surface_normal = { .start = face_center, .end = normal };
 
 	return surface_normal;
+}
+
+vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p)
+{
+	// a =  || PC X PB || / || AC X AB || (area of parallelogram formed at cross product P) / area of parallelogram formed at cross product at vector A
+	// b =  || AC X AP || / || AC X AB ||
+	// c = 1 - a - b (because a + b + c = 1)
+	// 
+	//        B \
+	//       / \ \
+	//      / | \  \
+	//     /  |  \   \
+	//    /c  p  a\   \E
+	//   /  /   \  \  |
+    //	/ /   b   \ \ |
+	// A -------------C
+	//
+
+	vec2_t pc = vec2_subtract(p, c);
+	vec2_t pb = vec2_subtract(p, b);
+	vec2_t ap = vec2_subtract(a, p);
+
+	vec2_t ac = vec2_subtract(a, c);
+	vec2_t ab = vec2_subtract(a, b);
+
+	// AC X AB
+	float area_parallelogram_abc = ((ac.x * ab.y) - (ac.y * ab.x));
+
+	// ||PC X PB|| / ||AC X AB||
+	float alpha = ((pc.x * pb.y) - (pc.y * pb.x)) / area_parallelogram_abc;
+
+	// ||AC X AP|| / ||AC X AB||
+	float beta = ((ac.x * ap.y) - (ac.y * ap.x)) / area_parallelogram_abc;
+
+	// 1 - alpha - beta
+	float gamma = 1.0f - alpha - beta;
+	
+	vec3_t weights = { alpha, beta, gamma };
+
+	return weights;
 }
 
