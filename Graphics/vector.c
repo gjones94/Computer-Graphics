@@ -2,10 +2,16 @@
 #include <stdio.h>
 #include "vector.h"
 
+void swap_vectors(vec2_t* v1, vec2_t* v2)
+{
+
+}
+
 float vec2_length(vec2_t v)
 {
 	return sqrtf(powf(v.x, 2) + powf(v.y, 2));
 }
+
 
 vec2_t vec2_add(vec2_t a, vec2_t b)
 {
@@ -205,3 +211,4 @@ normal_t get_normal_ray(vec3_t a, vec3_t b, vec3_t c)
 
 	return surface_normal;
 }
+

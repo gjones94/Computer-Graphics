@@ -25,7 +25,7 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	bool success = load_mesh_from_file("f22.obj");
+	bool success = load_mesh_from_file("cube.obj");
 
 	if (success)
 	{

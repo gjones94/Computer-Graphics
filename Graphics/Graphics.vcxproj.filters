@@ -42,6 +42,9 @@
     <ClCompile Include="light.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="texture.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics.h">

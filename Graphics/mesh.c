@@ -58,8 +58,9 @@ bool load_mesh_from_file(const char* filename)
 			else if(strcmp(token, "f") == 0)
 			{
 				int base_10 = 10; //used for strtol function Radix to determine base
-				int faces[3] = {0,0,0};
-				int face_count = 0;
+				int vertices[3] = {0,0,0};
+				int uv_coordinates[3] = { 0,0,0 };
+				int vertex_count = 0;
 
 				int index = 0;
 				uint32_t face_color = RED;
@@ -67,7 +68,10 @@ bool load_mesh_from_file(const char* filename)
 				{
 					if(index != 3) //add face vertex reference
 					{
-						faces[face_count++] = strtol(token, NULL, base_10);
+						char* vertex = token;
+						char* uv = token + 2;
+						vertices[vertex_count] = strtol(vertex, NULL, base_10);
+						uv_coordinates[vertex_count++] = strtol(uv, NULL, base_10);
 						index++;
 					}
 					else //add color of face
@@ -87,9 +91,34 @@ bool load_mesh_from_file(const char* filename)
 					}
 				}
 
-				face_t face = { faces[0], faces[1], faces[2], .color = face_color };
+				face_t face = { 
+					.a = vertices[0], 
+					.b = vertices[1], 
+					.c = vertices[2], 
+					
+					// Get the UV mappings of this face from the parsed texture coordinates ("vt" lines in file)
+					.a_uv = mesh->texture_uvs[uv_coordinates[0] - 1], 
+					.b_uv = mesh->texture_uvs[uv_coordinates[1] - 1], 
+					.c_uv = mesh->texture_uvs[uv_coordinates[2] - 1], 
+					
+					.color = face_color};
 				array_push(mesh->faces, face);
 				mesh->num_faces++;
+			}
+			// else if uv coordinates for textures
+			else if (strcmp(token, "vt") == 0)
+			{
+				float uv_coordinates[2] = { 0.0f, 0.0f };
+				int uv_count = 0;
+
+				while (token = strtok_s(NULL, " ", &context))
+				{
+					uv_coordinates[uv_count++] = strtof(token, NULL);
+				}
+
+				text2_t uv = { .u = uv_coordinates[0], .v = uv_coordinates[1] };
+				array_push(mesh->texture_uvs, uv);
+				mesh->num_texture_uvs++;
 			}
 		}
 	}
@@ -135,6 +164,7 @@ void free_meshes()
 		mesh_t* mesh = meshes[i];
 		array_free(mesh->faces);
 		array_free(mesh->vertices);
+		array_free(mesh->texture_uvs);
 		free(mesh);
 	}
 }
@@ -150,8 +180,13 @@ static mesh_t* init_mesh()
 
 	mesh->vertices = NULL;
 	mesh->num_faces = 0;
+
 	mesh->faces = NULL;
 	mesh->num_faces = 0;
+
+	mesh->texture_uvs = NULL;
+	mesh->num_texture_uvs = 0;
+
 	mesh->rotation.x = 0;
 	mesh->rotation.y = 0;
 	mesh->rotation.z = 0;

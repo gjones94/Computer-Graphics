@@ -7,6 +7,7 @@
 #include "triangle.h"
 #include "mesh.h"
 #include "array.h"
+#include "texture.h"
 #include "utilities.h"
 
 //=========================================================
@@ -35,7 +36,7 @@ int previous_frame_time = 0;
 
 bool backface_culling_enabled = true;
 bool wireframe_enabled = false;
-bool fill_enabled = false;
+bool fill_enabled = true;
 bool normal_enabled = false;
 bool texture_enabled = true;
 
@@ -68,9 +69,13 @@ bool init_graphics()
 	init_camera();
 	init_light();
 
+	// Intialize Perspective Matrix
 	fov = get_angle_radians(FOV);
 	aspect_ratio = (float) WINDOW_HEIGHT / (float) WINDOW_WIDTH;
 	m_perspective = get_perspective_matrix(aspect_ratio, fov, ZNEAR, ZFAR);
+
+	// Initialize Textures
+	mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
 
 	return success;
 }
@@ -101,7 +106,7 @@ void update()
 		{
 			// Get mesh face
 			face_t mesh_face = mesh->faces[i];
-
+			
 			// Get vertices of face
 			vec3_t face_vertices[3];
 			face_vertices[0] = mesh->vertices[mesh_face.a - 1];
@@ -176,8 +181,8 @@ void update()
 				projected_vertex.y += get_origin_y();
 
 				// Save triangle mesh with projected points
-				projected_triangle.points[j].x = projected_vertex.x;
-				projected_triangle.points[j].y = projected_vertex.y;
+				projected_triangle.vertices[j].x = projected_vertex.x;
+				projected_triangle.vertices[j].y = projected_vertex.y;
 				projected_triangle.avg_depth = depth;
 			}
 			
@@ -187,6 +192,12 @@ void update()
 			uint32_t light_adjusted_color = get_shaded_color(intensity, mesh_face.color);
 
 			projected_triangle.draw_normal = normal_enabled;
+
+			// Add uv coordinates to triangle
+			projected_triangle.texture_coordinates[0] = mesh_face.a_uv;
+			projected_triangle.texture_coordinates[1] = mesh_face.b_uv;
+			projected_triangle.texture_coordinates[2] = mesh_face.c_uv;
+
 			projected_triangle.color = light_adjusted_color;
 			projected_triangle.surface_normal = surface_normal;
 
@@ -207,7 +218,8 @@ void render()
 	{
 		if (fill_enabled)
 		{
-			fill_triangle(triangles_to_render[i], triangles_to_render[i].color);
+			fill_textured_triangle(triangles_to_render[i], NULL);
+			//fill_triangle(triangles_to_render[i], triangles_to_render[i].color);
 		}
 
 		if (wireframe_enabled)
@@ -290,26 +302,26 @@ void draw_rect(float x, float y, int width, int height, uint32_t color)
 void draw_triangle(triangle_t triangle, uint32_t color)
 {
 	draw_line(
-		(int) triangle.points[0].x,
-		(int) triangle.points[0].y,
-		(int) triangle.points[1].x,
-		(int) triangle.points[1].y,
+		(int) triangle.vertices[0].x,
+		(int) triangle.vertices[0].y,
+		(int) triangle.vertices[1].x,
+		(int) triangle.vertices[1].y,
 		color
 	);
 
 	draw_line(
-		(int) triangle.points[1].x,
-		(int) triangle.points[1].y,
-		(int) triangle.points[2].x,
-		(int) triangle.points[2].y,
+		(int) triangle.vertices[1].x,
+		(int) triangle.vertices[1].y,
+		(int) triangle.vertices[2].x,
+		(int) triangle.vertices[2].y,
 		color
 	);
 
 	draw_line(
-		(int) triangle.points[2].x,
-		(int) triangle.points[2].y,
-		(int) triangle.points[0].x,
-		(int) triangle.points[0].y,
+		(int) triangle.vertices[2].x,
+		(int) triangle.vertices[2].y,
+		(int) triangle.vertices[0].x,
+		(int) triangle.vertices[0].y,
 		color
 	);
 }

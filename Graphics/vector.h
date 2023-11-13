@@ -39,6 +39,7 @@ typedef struct
 //=========================================================
 // VECTOR 2 FUNCTIONS
 //=========================================================
+void swap_vectors(vec2_t* v1, vec2_t* v2);
 vec2_t project_2d(vec3_t vector, int FOV);
 float vec2_length(vec2_t v);
 vec2_t vec2_add(vec2_t a, vec2_t b);

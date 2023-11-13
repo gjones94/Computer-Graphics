@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include "graphics.h"
 #include "triangle.h"
+#include <math.h>
 
 
 //============================================================================
@@ -8,13 +9,13 @@
 //	PRIVATE PROTOTYPES
 //
 //============================================================================
-static void sort_triangle_vertices(vec2_t* vertices);
+static void sort_triangle_vertices(triangle_t* triangle);
 static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color);
 static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color);
 static vec2_t get_opposite_midpoint(triangle_t triangle);
-static void swap_vectors(vec2_t* v1, vec2_t* v2);
-static void swap_triangles(triangle_t* triangle1, triangle_t* triangle2);
+
 //============================================================================
+
 
 /// <summary>
 /// Fills out a triangle (Post Projection of vertices)
@@ -46,11 +47,11 @@ void fill_triangle(triangle_t triangle, uint32_t color)
     //==================================================================================
 
 	//sort by y coordinate so that v1 is the middle height
-	sort_triangle_vertices(triangle.points);
+	sort_triangle_vertices(&triangle);
 
-	vec2_t v0 = triangle.points[0];
-	vec2_t v1 = triangle.points[1];
-	vec2_t v2 = triangle.points[2];
+	vec2_t v0 = triangle.vertices[0];
+	vec2_t v1 = triangle.vertices[1];
+	vec2_t v2 = triangle.vertices[2];
 	vec2_t m;
 
 	//solve for mx using similar triangles (mx-x0 / x2 - x0) = ( y1-y0 / y2-y0 )
@@ -59,6 +60,102 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 
 	fill_flat_bottom_triangle(v0, v1, m, color);
 	fill_flat_top_triangle(v1, m, v2, color);
+}
+
+void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
+{
+	sort_triangle_vertices(&triangle);
+
+	vec2_t v0 = triangle.vertices[0];
+	vec2_t v1 = triangle.vertices[1];
+	vec2_t v2 = triangle.vertices[2];
+
+	// Fill Top Triangle (Flat Bottom)
+
+	int y0 = (int) v0.y;
+	int y1 = (int) v1.y;
+	int y2 = (int) v2.y;
+
+	float slope1 = 0;
+	float slope2 = 0;
+
+	if (y1 - y0 != 0)
+	{
+		slope1 = (v1.x - v0.x) / (float) (y1 - y0);
+	}
+
+	if (y2 - y0 != 0)
+	{
+		slope2 = (v2.x - v0.x) / (float) (y2 - y0);
+	}
+
+	float start_x = v0.x;
+	float end_x = v0.x;
+
+	if (y1 - y0 != 0)
+	{
+		for (int y = y0; y <= y1; y++)
+		{
+			draw_line((int)start_x, y, (int)end_x, y, 0xFF0000FF);
+
+			end_x += slope1; //calculate new startX
+			start_x += slope2; //calculate new endX
+
+			/*if (start_x > end_x)
+			{
+				float temp = start_x;
+				start_x = end_x;
+				end_x = temp;
+			}*/
+
+			/*for (int x = (int)start_x; x < (int)end_x; x++)
+			{
+				draw_pixel(x, y, 0xFF0000FF);
+			}*/
+		}
+	}
+
+	// Fill Bottom Triangle (Flat Top)
+	slope1 = 0;
+	slope2 = 0;
+
+	if (y2 - y1 != 0)
+	{
+		slope1 = (v1.x - v2.x) / (float) (y2 - y1);
+	}
+
+	if (y2 - y0 != 0)
+	{
+		slope2 = (v0.x - v2.x) / (float) (y2 - y0);
+	}
+
+	if (y2 - y1 != 0)
+	{
+		start_x = v2.x;
+		end_x = v2.x;
+
+		for (int y = y2; y > y1; y--)
+		{
+			draw_line((int) start_x, y, (int) end_x, y, 0xFF0000FF);
+
+			/*
+			for (int x = (int)start_x; x < (int)end_x; x++)
+			{
+				draw_pixel(x, y, 0xFF0000FF);
+			}
+			*/
+
+			start_x += slope1;
+			end_x += slope2;
+
+			/*if (start_x > end_x)
+			{
+				float swap = start_x;
+				start_x = end_x;
+				end_x = swap;
+			}*/
+		}
+	}
 }
 
 void sort_by_depth(triangle_t* triangles, int num_triangles)
@@ -80,34 +177,37 @@ void sort_by_depth(triangle_t* triangles, int num_triangles)
 /// Sorts vertices from least to greatest by the y coordinate
 /// </summary>
 /// <param name="vertices"></param>
-static void sort_triangle_vertices(vec2_t *vertices)
+static void sort_triangle_vertices(triangle_t *triangle)
 {
 	// Swap vertices into ascending order v0.y < v1.y < v2.y
-	vec2_t v0 = vertices[0];
-	vec2_t v1 = vertices[1];
-	vec2_t v2 = vertices[2];
+	vec2_t *v0 = &triangle->vertices[0];
+	vec2_t *v1 = &triangle->vertices[1];
+	vec2_t *v2 = &triangle->vertices[2];
+
+	text2_t *uv0 = &triangle->texture_coordinates[0];
+	text2_t *uv1 = &triangle->texture_coordinates[1];
+	text2_t *uv2 = &triangle->texture_coordinates[2];
 
 	// a < b < c
-	if (v0.y > v1.y) // sort first two elements
+	if (v0->y > v1->y) // sort first two elements
 	{
-		swap_vectors(&v0, &v1);
+		swap_vectors(v0, v1);
+		swap_textures(uv0, uv1);
 	}
 
 	// b < a < c
-	if (v1.y > v2.y) // sort last two elements
+	if (v1->y > v2->y) // sort last two elements
 	{
-		swap_vectors(&v1, &v2);
+		swap_vectors(v1, v2);
+		swap_textures(uv1, uv2);
 	}
 
 	// b < c < a
-	if (v0.y > v1.y) // bottom two (might need to be sorted again if the middle and end got pushed to the beginning)
+	if (v0->y > v1->y) // bottom two (might need to be sorted again if the middle and end got pushed to the beginning)
 	{
-		swap_vectors(&v0, &v1);
+		swap_vectors(v0, v1);
+		swap_textures(uv0, uv1);
 	}
-
-	vertices[0] = v0;
-	vertices[1] = v1;
-	vertices[2] = v2;
 }
 
 
@@ -200,12 +300,12 @@ static vec2_t get_opposite_midpoint(triangle_t triangle)
 {
 	vec2_t midpoint;
 
-	float x0 = triangle.points[0].x;
-	float y0 = triangle.points[0].y;
-	float x1 = triangle.points[1].x;
-	float y1 = triangle.points[1].y;
-	float x2 = triangle.points[2].x;
-	float y2 = triangle.points[2].y;
+	float x0 = triangle.vertices[0].x;
+	float y0 = triangle.vertices[0].y;
+	float x1 = triangle.vertices[1].x;
+	float y1 = triangle.vertices[1].y;
+	float x2 = triangle.vertices[2].x;
+	float y2 = triangle.vertices[2].y;
 
     //==================================================================================
     //
@@ -228,7 +328,7 @@ static vec2_t get_opposite_midpoint(triangle_t triangle)
     // 
     //==================================================================================
 
-	midpoint.y = triangle.points[1].y; // the triangle points were sorted so that y1 is in the middle of y0 and y2
+	midpoint.y = triangle.vertices[1].y; // the triangle points were sorted so that y1 is in the middle of y0 and y2
 	/*
 		Solve for mx using similar triangles (mx-x0 / x2 - x0) = ( y1-y0 / y2-y0 )
 	*/
@@ -244,6 +344,7 @@ static void swap_vectors(vec2_t *v1, vec2_t *v2)
 	*v1 = *v2;
 	*v2 = swap;
 }
+
 
 static void swap_triangles(triangle_t* triangle1, triangle_t* triangle2)
 {
