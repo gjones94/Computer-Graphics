@@ -183,6 +183,11 @@ void update()
 				// Save triangle mesh with projected points
 				projected_triangle.vertices[j].x = projected_vertex.x;
 				projected_triangle.vertices[j].y = projected_vertex.y;
+
+				// Used for depth interpolation for texture mapping of triangle
+				projected_triangle.vertices[j].z = projected_vertex.z;
+				projected_triangle.vertices[j].w = projected_vertex.w;
+
 				projected_triangle.avg_depth = depth;
 			}
 			

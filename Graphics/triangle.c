@@ -49,9 +49,9 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 	//sort by y coordinate so that v1 is the middle height
 	sort_triangle_vertices(&triangle);
 
-	vec2_t v0 = triangle.vertices[0];
-	vec2_t v1 = triangle.vertices[1];
-	vec2_t v2 = triangle.vertices[2];
+	vec2_t v0 = { .x = triangle.vertices[0].x,  .y = triangle.vertices[0].y };
+	vec2_t v1 = { .x = triangle.vertices[1].x,  .y = triangle.vertices[1].y };
+	vec2_t v2 = { .x = triangle.vertices[2].x,  .y = triangle.vertices[2].y };
 	vec2_t m;
 
 	//solve for mx using similar triangles (mx-x0 / x2 - x0) = ( y1-y0 / y2-y0 )
@@ -62,9 +62,17 @@ void fill_triangle(triangle_t triangle, uint32_t color)
 	fill_flat_top_triangle(v1, m, v2, color);
 }
 
-void draw_texel(int x, int y, vec2_t a, vec2_t b, vec2_t c, float u0, float v0, float u1, float v1, float u2, float v2, uint32_t* texture)
+void draw_texel(int x, int y, triangle_t triangle, uint32_t* texture)
 {
 	vec2_t p = { x, y };
+
+	vec2_t a = vec2_from_vec4(triangle.vertices[0]);
+	vec2_t b = vec2_from_vec4(triangle.vertices[1]);
+	vec2_t c = vec2_from_vec4(triangle.vertices[2]);
+
+	text2_t uv0 = triangle.texture_coordinates[0];
+	text2_t uv1 = triangle.texture_coordinates[1];
+	text2_t uv2 = triangle.texture_coordinates[2];
 
 	// get weights between 0 and 1 for current point
 	vec3_t weights = barycentric_weights(a, b, c, p);
@@ -74,8 +82,22 @@ void draw_texel(int x, int y, vec2_t a, vec2_t b, vec2_t c, float u0, float v0, 
 	float gamma = weights.z;
 
 	// get interpolated uv based on current point
-	float interpolated_u = u0 * alpha + u1 * beta + u2 * gamma;
-	float interpolated_v = v0 * alpha + v1 * beta + v2 * gamma;
+	float interpolated_u;
+	float interpolated_v;
+	float interpolated_reciprocal_w;
+
+	float w0 = triangle.vertices[0].w;
+	float w1 = triangle.vertices[1].w;
+	float w2 = triangle.vertices[2].w;
+
+	// Perform interpolation of all U/w and V/w values using barycentric weights and a factor of 1/w
+	interpolated_u = ((uv0.u / w0) * alpha) + ((uv1.u / w1) * beta) + ((uv2.u / w2) * gamma);
+	interpolated_v = ((uv0.v / w0) * alpha) + ((uv1.v / w1) * beta) + ((uv2.v / w2) * gamma);
+
+	interpolated_reciprocal_w = ((1/w0) * alpha) + ((1/w1) * beta) + ((1/w2) * gamma);
+
+	interpolated_u /= interpolated_reciprocal_w;
+	interpolated_v /= interpolated_reciprocal_w;
 
 	// Scale weighted uv according to png size
 	int text_x = abs((int)(interpolated_u * TEXTURE_WIDTH));
@@ -93,13 +115,9 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 {
 	sort_triangle_vertices(&triangle);
 
-	vec2_t v0 = triangle.vertices[0];
-	vec2_t v1 = triangle.vertices[1];
-	vec2_t v2 = triangle.vertices[2];
-
-	text2_t t0 = triangle.texture_coordinates[0];
-	text2_t t1 = triangle.texture_coordinates[1];
-	text2_t t2 = triangle.texture_coordinates[2];
+	vec4_t v0 = triangle.vertices[0];
+	vec4_t v1 = triangle.vertices[1];
+	vec4_t v2 = triangle.vertices[2];
 
 	// Fill Top Triangle (Flat Bottom)
 	int y0 = (int) v0.y;
@@ -135,7 +153,7 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 
 			for (int x = (int) start_x; x <= (int) end_x; x++)
 			{
-				draw_texel(x, y, v0, v1, v2, t0.u, t0.v, t1.u, t1.v, t2.u, t2.v, texture);
+				draw_texel(x, y, triangle, texture);
 				//draw_pixel(x, y, 0xFF0000FF);
 				//printf("X: %d at height %d\n", (int) x, (int) y);
 			}
@@ -175,7 +193,7 @@ void fill_textured_triangle(triangle_t triangle, uint32_t* texture)
 
 			for (int x = (int) start_x; x <= (int) end_x; x++)
 			{
-				draw_texel(x, y, v0, v1, v2, t0.u, t0.v, t1.u, t1.v, t2.u, t2.v, texture);
+				draw_texel(x, y, triangle, texture);
 			}
 
 			x1 += slope1;
@@ -195,7 +213,6 @@ void sort_by_depth(triangle_t* triangles, int num_triangles)
 				swap_triangles(&triangles[i], &triangles[j]);
 			}
 		}
-
 	}
 }
 
@@ -206,9 +223,9 @@ void sort_by_depth(triangle_t* triangles, int num_triangles)
 static void sort_triangle_vertices(triangle_t *triangle)
 {
 	// Swap vertices into ascending order v0.y < v1.y < v2.y
-	vec2_t *v0 = &triangle->vertices[0];
-	vec2_t *v1 = &triangle->vertices[1];
-	vec2_t *v2 = &triangle->vertices[2];
+	vec4_t *v0 = &triangle->vertices[0];
+	vec4_t *v1 = &triangle->vertices[1];
+	vec4_t *v2 = &triangle->vertices[2];
 
 	text2_t *uv0 = &triangle->texture_coordinates[0];
 	text2_t *uv1 = &triangle->texture_coordinates[1];
@@ -363,9 +380,9 @@ static vec2_t get_opposite_midpoint(triangle_t triangle)
 	return midpoint;
 }
 
-static void swap_vectors(vec2_t *v1, vec2_t *v2)
+static void swap_vectors(vec4_t *v1, vec4_t *v2)
 {
-	vec2_t swap = *v1;
+	vec4_t swap = *v1;
 
 	*v1 = *v2;
 	*v2 = swap;

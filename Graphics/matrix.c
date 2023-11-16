@@ -207,7 +207,6 @@ vec4_t project(mat4_t m_projection, vec4_t vector)
 		projected_vector.x /= projected_vector.w;
 		projected_vector.y /= projected_vector.w;
 		projected_vector.z /= projected_vector.w;
-		projected_vector.w /= projected_vector.w;
 	}
 	
 	return projected_vector;

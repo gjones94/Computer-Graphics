@@ -2,11 +2,6 @@
 #include <stdio.h>
 #include "vector.h"
 
-void swap_vectors(vec2_t* v1, vec2_t* v2)
-{
-
-}
-
 float vec2_length(vec2_t v)
 {
 	return sqrtf(powf(v.x, 2) + powf(v.y, 2));
@@ -166,6 +161,12 @@ void vec3_normalize(vec3_t *v)
 	v->x /= length;
 	v->y /= length;
 	v->z /= length;
+}
+
+vec2_t vec2_from_vec4(vec4_t vector)
+{
+	vec2_t v = { .x = vector.x, .y = vector.y };
+	return v;
 }
 
 vec3_t vec3_from_vec4(vec4_t vector)

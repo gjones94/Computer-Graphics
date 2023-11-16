@@ -39,7 +39,6 @@ typedef struct
 //=========================================================
 // VECTOR 2 FUNCTIONS
 //=========================================================
-void swap_vectors(vec2_t* v1, vec2_t* v2);
 vec2_t project_2d(vec3_t vector, int FOV);
 float vec2_length(vec2_t v);
 vec2_t vec2_add(vec2_t a, vec2_t b);
@@ -160,10 +159,26 @@ vec3_t vec3_cross(vec3_t a, vec3_t b);
 /// <returns></returns>
 float vec3_dot(vec3_t a, vec3_t b);
 
+/// <summary>
+/// Returns a vector 3 of interpolated weights between 3 vertices for a 2d point p
+/// </summary>
+/// <param name="a"></param>
+/// <param name="b"></param>
+/// <param name="c"></param>
+/// <param name="p"></param>
+/// <returns></returns>
+vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p);
+
+//=========================================================
+// VECTOR 4 FUNCTIONS
+//=========================================================
+void swap_vectors(vec4_t* v1, vec4_t* v2);
+
+
 //=========================================================
 // VECTOR CONVERSION FUNCTIONS
 //=========================================================
-
+vec2_t vec2_from_vec4(vec4_t vector);
 vec3_t vec3_from_vec4(vec4_t vector);
 vec4_t vec4_from_vec3(vec3_t vector);
 
@@ -176,5 +191,3 @@ vec4_t vec4_from_vec3(vec3_t vector);
 /// <param name="c"></param>
 /// <returns>normal_t normal ray centered on surface of vertices</returns>
 normal_t get_normal_ray(vec3_t a, vec3_t b, vec3_t c);
-
-vec3_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p);
