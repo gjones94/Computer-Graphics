@@ -45,26 +45,97 @@ void fill_triangle(triangle_t triangle, uint32_t color)
     //                  |____________(x2, y2)
     // 
     //==================================================================================
-
-	//sort by y coordinate so that v1 is the middle height
 	sort_triangle_vertices(&triangle);
 
-	vec2_t v0 = { .x = triangle.vertices[0].x,  .y = triangle.vertices[0].y };
-	vec2_t v1 = { .x = triangle.vertices[1].x,  .y = triangle.vertices[1].y };
-	vec2_t v2 = { .x = triangle.vertices[2].x,  .y = triangle.vertices[2].y };
-	vec2_t m;
+	vec4_t v0 = triangle.vertices[0];
+	vec4_t v1 = triangle.vertices[1];
+	vec4_t v2 = triangle.vertices[2];
 
-	//solve for mx using similar triangles (mx-x0 / x2 - x0) = ( y1-y0 / y2-y0 )
-	m = get_opposite_midpoint(triangle);
+	// Fill Top Triangle (Flat Bottom)
+	int y0 = (int)v0.y;
+	int y1 = (int)v1.y;
+	int y2 = (int)v2.y;
 
+	float slope1 = 0;
+	float slope2 = 0;
 
-	fill_flat_bottom_triangle(v0, v1, m, color);
-	fill_flat_top_triangle(v1, m, v2, color);
+	// Prevent division by 0
+	if (y1 - y0 != 0)
+	{
+		slope1 = (float)((int)v1.x - (int)v0.x) / (float)(y1 - y0);
+	}
+
+	// Prevent division by 0
+	if (y2 - y0 != 0)
+	{
+		slope2 = (float)((int)v2.x - (int)v0.x) / (float)(y2 - y0);
+	}
+
+	// Make sure top triangle with flat bottom actually exists
+	if (y1 - y0 != 0)
+	{
+		float x1 = v0.x;
+		float x2 = v0.x;
+
+		for (int y = y0; y <= y1; y++)
+		{
+			//draw_line((int) start_x, y, (int) end_x, y, 0xFF0000FF);
+			float start_x = x1 < x2 ? x1 : x2;
+			float end_x = x1 < x2 ? x2 : x1;
+
+			for (int x = (int)start_x; x <= (int)end_x; x++)
+			{
+				draw_triangle_pixel(x, y, triangle, color);
+			}
+
+			x1 += slope1; //calculate new startX
+			x2 += slope2; //calculate new endX
+		}
+	}
+
+	// Fill Bottom Triangle (Flat Top)
+	slope1 = 0;
+	slope2 = 0;
+
+	if (y2 - y1 != 0)
+	{
+		slope1 = (v1.x - v2.x) / (float)(y2 - y1);
+	}
+
+	if (y2 - y0 != 0)
+	{
+		slope2 = (v0.x - v2.x) / (float)(y2 - y0);
+	}
+
+	// Make sure the bottom triangle actually exists
+	if (y2 - y1 != 0)
+	{
+		float x1 = v2.x;
+		float x2 = v2.x;
+
+		for (int y = y2; y >= y1; y--)
+		{
+			// Obtain the starting x value
+			float start_x = x1 < x2 ? x1 : x2;
+
+			// Obtain the ending x value
+			float end_x = x1 < x2 ? x2 : x1;
+
+			for (int x = (int)start_x; x <= (int)end_x; x++)
+			{
+				draw_triangle_pixel(x, y, triangle, color);
+			}
+
+			x1 += slope1;
+			x2 += slope2;
+		}
+	}
+	
 }
 
 void draw_texel(int x, int y, triangle_t triangle, uint32_t* texture)
 {
-	vec2_t p = { x, y };
+	vec2_t p = { (float) x, (float) y };
 
 	vec2_t a = vec2_from_vec4(triangle.vertices[0]);
 	vec2_t b = vec2_from_vec4(triangle.vertices[1]);
@@ -118,6 +189,40 @@ void draw_texel(int x, int y, triangle_t triangle, uint32_t* texture)
 	if (interpolated_reciprocal_w < previousZBuffer) // Only update if depth is nearer than previous
 	{
 		draw_pixel(x, y, texture[texture_index]);
+		z_buffer[(WINDOW_WIDTH * y) + x] = interpolated_reciprocal_w;
+	}
+}
+
+void draw_triangle_pixel(int x, int y, triangle_t triangle, uint32_t color)
+{
+	vec2_t p = { (float) x, (float) y };
+
+	vec2_t a = vec2_from_vec4(triangle.vertices[0]);
+	vec2_t b = vec2_from_vec4(triangle.vertices[1]);
+	vec2_t c = vec2_from_vec4(triangle.vertices[2]);
+
+	// get weights between 0 and 1 for current point
+	vec3_t weights = barycentric_weights(a, b, c, p);
+
+	float alpha = weights.x;
+	float beta = weights.y;
+	float gamma = weights.z;
+
+	// get interpolated uv based on current point
+	float interpolated_reciprocal_w;
+
+	float w0 = triangle.vertices[0].w;
+	float w1 = triangle.vertices[1].w;
+	float w2 = triangle.vertices[2].w;
+
+	interpolated_reciprocal_w = ((1 / w0) * alpha) + ((1 / w1) * beta) + ((1 / w2) * gamma);
+
+	interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
+	float previousZ = z_buffer[(WINDOW_WIDTH * y) + x];
+
+	if (interpolated_reciprocal_w < previousZ)
+	{
+		draw_pixel(x, y, color);
 		z_buffer[(WINDOW_WIDTH * y) + x] = interpolated_reciprocal_w;
 	}
 }
@@ -273,6 +378,7 @@ static void sort_triangle_vertices(triangle_t *triangle)
 /// <param name="v0"></param>
 /// <param name="v1"></param>
 /// <param name="m"> => m.y = v1.y, (solve for m.x)</param>
+// DEPRECATED
 static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t color)
 {
     //======================================
@@ -323,6 +429,7 @@ static void fill_flat_bottom_triangle(vec2_t v0, vec2_t v1, vec2_t m, uint32_t c
 /// <param name="v1"></param>
 /// <param name="m"> => m.y = v1.y, (solve for m.x)</param>
 /// <param name="v2"></param>
+// DEPRECATED
 static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t color)
 {
 	int y1 = (int) v1.y;
@@ -351,6 +458,8 @@ static void fill_flat_top_triangle(vec2_t v1, vec2_t m, vec2_t v2, uint32_t colo
 		end_x += slope2_increment; 
 	}
 }
+
+// DEPRECATED
 static vec2_t get_opposite_midpoint(triangle_t triangle)
 {
 	vec2_t midpoint;

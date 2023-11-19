@@ -10,6 +10,7 @@
 #include "texture.h"
 #include "utilities.h"
 
+#define MAX_TRIANGLES 10000
 //=========================================================
 // SDL INITIALIZATION
 //=========================================================
@@ -23,7 +24,8 @@ vec3_t camera_position;
 light_t light_source;
 mat4_t m_perspective;
 
-triangle_t* triangles_to_render;
+triangle_t triangles_to_render[MAX_TRIANGLES];
+int num_triangles = 0;
 float const angle_increment = 0.003f;
 float const scale_increment = 0.002f;
 float const translation_increment = 0.001f;
@@ -80,8 +82,7 @@ bool init_graphics()
 
 void update()
 {
-	triangles_to_render = NULL;
-
+	num_triangles = 0;
 	// Set Next Movements for Mesh
 	for (int i = 0; i < num_meshes; i++)
 	{
@@ -209,7 +210,8 @@ void update()
 			projected_triangle.surface_normal = surface_normal;
 
 			// Add triangle for rendering
-			array_push(triangles_to_render, projected_triangle);
+			if(num_triangles < MAX_TRIANGLES)
+				triangles_to_render[num_triangles++] = projected_triangle;
 		}
 	}
 }
@@ -218,10 +220,9 @@ void render()
 {
 	throttle_fps();
 
-	int size = array_length(triangles_to_render);
-	sort_by_depth(triangles_to_render, size);
+	//sort_by_depth(triangles_to_render, num_triangles);
 
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < num_triangles; i++)
 	{
 		if (fill_enabled)
 		{
@@ -243,8 +244,7 @@ void render()
 		}
 	}
 
-	array_free(triangles_to_render);
-
+		
 	render_texture();
 	clear_buffer(0xFF000000);
 
