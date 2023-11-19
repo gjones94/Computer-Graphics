@@ -45,6 +45,9 @@
     <ClCompile Include="texture.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="upng.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="graphics.h">
@@ -77,6 +80,9 @@
     <ClInclude Include="texture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="upng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Text Include="NOTE.txt">
@@ -85,8 +91,13 @@
     <Text Include="cube.obj">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="f22.obj">
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="cube.png">
       <Filter>Resource Files</Filter>
-    </Text>
+    </Image>
+    <Image Include="f22.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

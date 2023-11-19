@@ -25,7 +25,8 @@ int main(int argc, char* args[])
 		return -1;
 	}
 
-	bool success = load_mesh_from_file("cube.obj");
+	bool success = load_mesh_from_file("f117.obj");
+	load_png_texture("f117.png");
 
 	if (success)
 	{

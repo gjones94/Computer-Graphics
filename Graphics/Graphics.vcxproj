@@ -141,6 +141,7 @@
     <ClCompile Include="mesh.c" />
     <ClCompile Include="texture.c" />
     <ClCompile Include="triangle.c" />
+    <ClCompile Include="upng.c" />
     <ClCompile Include="utilities.c" />
     <ClCompile Include="vector.c" />
   </ItemGroup>
@@ -153,6 +154,7 @@
     <ClInclude Include="mesh.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="triangle.h" />
+    <ClInclude Include="upng.h" />
     <ClInclude Include="utilities.h" />
     <ClInclude Include="vector.h" />
   </ItemGroup>
@@ -163,9 +165,8 @@
     <Text Include="NOTE.txt" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="f22.obj">
-      <FileType>Document</FileType>
-    </Text>
+    <Image Include="cube.png" />
+    <Image Include="f22.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

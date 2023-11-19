@@ -40,7 +40,7 @@ bool load_mesh_from_file(const char* filename)
 			token = strtok_s(line, " ", &context);
 
 			//If line is vertex
-			if (strcmp(token, "v") == 0)
+			if (strcmp(token, "v") == 0) //Vertex
 			{
 				float vertices[3] = { 0.0, 0.0, 0.0 };
 				int vertex_count = 0;
@@ -54,8 +54,24 @@ bool load_mesh_from_file(const char* filename)
 				array_push(mesh->vertices, vertex);
 				mesh->num_vertices++;
 			}
-			//else if line is face
-			else if(strcmp(token, "f") == 0)
+			else if (strcmp(token, "vt") == 0) // Texture Coordinate
+			{
+				float uv_coordinates[2] = { 0.0f, 0.0f };
+				int uv_count = 0;
+
+				while (token = strtok_s(NULL, " ", &context))
+				{
+					uv_coordinates[uv_count++] = strtof(token, NULL);
+				}
+
+				//Invert v coordinate since goes positive in the down direction
+				uv_coordinates[1] = 1 - uv_coordinates[1];
+
+				text2_t uv = { .u = uv_coordinates[0], .v = uv_coordinates[1] };
+				array_push(mesh->texture_uvs, uv);
+				mesh->num_texture_uvs++;
+			}
+			else if(strcmp(token, "f") == 0) // Face
 			{
 				int base_10 = 10; //used for strtol function Radix to determine base
 				int vertices[3] = {0,0,0};
@@ -66,13 +82,10 @@ bool load_mesh_from_file(const char* filename)
 				uint32_t face_color = RED;
 				while (token = strtok_s(NULL, " ", &context))
 				{
+					int discard;
 					if(index != 3) //add face vertex reference
 					{
-						char* vertex = token;
-						char* uv = token + 2;
-						vertices[vertex_count] = strtol(vertex, NULL, base_10);
-						uv_coordinates[vertex_count++] = strtol(uv, NULL, base_10);
-						index++;
+						sscanf_s(token, "%d/%d/%d", &vertices[index], &uv_coordinates[index], &discard);
 					}
 					else //add color of face
 					{
@@ -89,6 +102,7 @@ bool load_mesh_from_file(const char* filename)
 								break;
 						}
 					}
+					index++;
 				}
 
 				face_t face = { 
@@ -100,26 +114,15 @@ bool load_mesh_from_file(const char* filename)
 					.a_uv = mesh->texture_uvs[uv_coordinates[0] - 1], 
 					.b_uv = mesh->texture_uvs[uv_coordinates[1] - 1], 
 					.c_uv = mesh->texture_uvs[uv_coordinates[2] - 1], 
+
 					
-					.color = face_color};
+					.color = face_color
+				};
+
 				array_push(mesh->faces, face);
 				mesh->num_faces++;
 			}
-			// else if uv coordinates for textures
-			else if (strcmp(token, "vt") == 0)
-			{
-				float uv_coordinates[2] = { 0.0f, 0.0f };
-				int uv_count = 0;
-
-				while (token = strtok_s(NULL, " ", &context))
-				{
-					uv_coordinates[uv_count++] = strtof(token, NULL);
-				}
-
-				text2_t uv = { .u = uv_coordinates[0], .v = uv_coordinates[1] };
-				array_push(mesh->texture_uvs, uv);
-				mesh->num_texture_uvs++;
-			}
+		
 		}
 	}
 	else 

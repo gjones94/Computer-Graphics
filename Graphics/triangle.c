@@ -100,14 +100,26 @@ void draw_texel(int x, int y, triangle_t triangle, uint32_t* texture)
 	interpolated_v /= interpolated_reciprocal_w;
 
 	// Scale weighted uv according to png size
-	int text_x = abs((int)(interpolated_u * TEXTURE_WIDTH));
-	int text_y = abs((int)(interpolated_v * TEXTURE_HEIGHT));
+	int text_x = abs((int)(interpolated_u * texture_width)) % texture_width;
+	int text_y = abs((int)(interpolated_v * texture_height)) % texture_height;
 
 	// Get flat array index based on x and y
 	//                              ROW            COLUMN
-	int texture_index = ((TEXTURE_WIDTH * text_y) + text_x) % 4096;
+	int texture_index = ((texture_width * text_y) + text_x);
 
-	draw_pixel(x, y, texture[texture_index]);
+	float previousZBuffer = z_buffer[(WINDOW_WIDTH * y) + x];
+
+	/* 
+	* as z decreases, the reciprocal gets larger since we have 1 / z
+	* so, we subtract from 1 to get the small value lesser(nearer) z value
+	*/
+	
+	interpolated_reciprocal_w = 1 - interpolated_reciprocal_w;
+	if (interpolated_reciprocal_w < previousZBuffer) // Only update if depth is nearer than previous
+	{
+		draw_pixel(x, y, texture[texture_index]);
+		z_buffer[(WINDOW_WIDTH * y) + x] = interpolated_reciprocal_w;
+	}
 }
 	
 

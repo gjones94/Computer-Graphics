@@ -17,6 +17,7 @@ SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 SDL_Texture* buffer_texture = NULL;
 uint32_t* buffer = NULL;
+float* z_buffer = NULL;
 
 vec3_t camera_position; 
 light_t light_source;
@@ -35,10 +36,10 @@ bool running = false;
 int previous_frame_time = 0;
 
 bool backface_culling_enabled = true;
-bool wireframe_enabled = false;
-bool fill_enabled = true;
+bool wireframe_enabled = true;
+bool fill_enabled = false;
 bool normal_enabled = false;
-bool texture_enabled = true;
+bool texture_enabled = false;
 
 //=========================================================
 // PRIVATE FUNCTION PROTOTYPES
@@ -74,9 +75,6 @@ bool init_graphics()
 	aspect_ratio = (float) WINDOW_HEIGHT / (float) WINDOW_WIDTH;
 	m_perspective = get_perspective_matrix(aspect_ratio, fov, ZNEAR, ZFAR);
 
-	// Initialize Textures
-	mesh_texture = (uint32_t*) REDBRICK_TEXTURE;
-
 	return success;
 }
 
@@ -88,10 +86,14 @@ void update()
 	for (int i = 0; i < num_meshes; i++)
 	{
 		meshes[i]->rotation.x += angle_increment;
-		meshes[i]->rotation.y += angle_increment;
-		meshes[i]->rotation.z += angle_increment;
+		//meshes[i]->rotation.y += angle_increment;
+		//meshes[i]->rotation.z += angle_increment;
 
 		//Move mesh away from origin to be in view
+		//meshes[i]->translation.y = -1.5;
+		//meshes[i]->scale.x = 50;
+		//meshes[i]->scale.y = 50;
+		//meshes[i]->scale.z = 50;
 		meshes[i]->translation.z = 5;
 	}
 
@@ -169,7 +171,7 @@ void update()
 				// Project into 2d space
 				vec4_t projected_vertex = project(m_perspective, transformed_vertices[j]);
 
-				// Scale to Window Size (coordinates are currently normalized to -1 and 1)
+				// Scale to Window Size (coordinates are currently normalized to  and 1)
 				projected_vertex.x *= (int) WINDOW_WIDTH / 2;
 				projected_vertex.y *= (int) WINDOW_HEIGHT / 2;
 
@@ -223,8 +225,11 @@ void render()
 	{
 		if (fill_enabled)
 		{
+			fill_triangle(triangles_to_render[i], triangles_to_render[i].color);
+		}
+		else if (texture_enabled)
+		{
 			fill_textured_triangle(triangles_to_render[i], mesh_texture);
-			//fill_triangle(triangles_to_render[i], triangles_to_render[i].color);
 		}
 
 		if (wireframe_enabled)
@@ -424,8 +429,9 @@ int get_origin_y()
 void free_resources()
 {
 	free_meshes();
-
+	upng_free(png_texture);
 	free(buffer);
+	free(z_buffer);
 	destroy_window();
 }
 
@@ -476,9 +482,9 @@ static bool init_window()
 
 static bool init_buffers(void)
 {
-	buffer = (uint32_t*)malloc(sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
-
-	if (!buffer)
+	buffer = (uint32_t*) malloc(sizeof(uint32_t) * WINDOW_WIDTH * WINDOW_HEIGHT);
+	z_buffer = (float*) malloc(sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
+	if (!buffer || !z_buffer)
 	{
 		running = false;
 		printf("Failed to allocate memory for pixel buffer\n");
@@ -487,7 +493,7 @@ static bool init_buffers(void)
 
 	buffer_texture = SDL_CreateTexture(
 		renderer,
-		SDL_PIXELFORMAT_ABGR8888,
+		SDL_PIXELFORMAT_RGBA32,
 		SDL_TEXTUREACCESS_STREAMING,
 		WINDOW_WIDTH,
 		WINDOW_HEIGHT
@@ -542,7 +548,8 @@ static void clear_buffer(uint32_t color)
 	{
 		for (int j = 0; j < WINDOW_WIDTH; j++)
 		{
-			buffer[(i * WINDOW_WIDTH) + j] = color;
+			buffer[(i * WINDOW_WIDTH) + j] = color; // Clear Color Buffer
+			z_buffer[(i * WINDOW_WIDTH) + j] = 1.0f; // Clear related Z Buffer (1.0 is furthest away)
 		}
 	}
 }
