@@ -1,4 +1,5 @@
-This was a tutorial I recently followed to create 3d animations from scratch. It went pretty deep into the math of projection and shading using interpolation and barycentric coordinates.
+<h1>3D Computer Graphics</h1>
+This was a tutorial I recently followed (https://pikuma.com/courses) to create 3d animations from scratch. It went pretty deep into the math of projection and shading using interpolation and barycentric coordinates.
 
 It was programmed in C using the SDL API. Apart from following the tutorial I did a little refactoring of some of the functions to help it make more sense to me.
 
